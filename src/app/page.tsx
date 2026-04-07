@@ -262,7 +262,7 @@ export default function Home() {
         }
 
         .gradient-badge {
-          background: linear-gradient(135deg, #FDE047, #ead77b) !important;
+          background: linear-gradient(135deg, #a855f7, #ec4899) !important;
         }
 
         .search-input:focus {
