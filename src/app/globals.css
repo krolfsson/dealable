@@ -1,0 +1,26 @@
+@import "tailwindcss";
+
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background: #ffffff;
+  color: #1d1d1f;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display',
+    'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+::selection {
+  background: rgba(0, 113, 227, 0.15);
+}
+
+/* Hide scrollbar on category bar */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

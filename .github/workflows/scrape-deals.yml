@@ -1,0 +1,38 @@
+name: Scrape Deals
+
+on:
+  schedule:
+    # Kör varannan timme
+    - cron: '0 */2 * * *'
+  workflow_dispatch: # Tillåt manuell körning
+
+permissions:
+  contents: write
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run scraper
+        run: npm run scrape
+
+      - name: Commit and push if changed
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add src/data/deals.json
+          git diff --staged --quiet || git commit -m "🔄 Auto-update deals $(date -u +'%Y-%m-%d %H:%M UTC')"
+          git push
