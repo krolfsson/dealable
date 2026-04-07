@@ -35,15 +35,15 @@
   "deals": [
     {
       "id": 2,
-      "title": "Samsung Galaxy S25 Ultra 5G 12/256GB",
-      "brand": "Samsung",
+      "title": "Apple Airpods Max",
+      "brand": "Apple",
       "store": "Elgiganten",
-      "price": 11990,
-      "originalPrice": 17990,
-      "discount": "-33%",
-      "category": "Mobiler",
-      "image": "https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=800&h=800&fit=crop",
-      "url": "https://www.elgiganten.se/product/mobiler-tablets-smartklockor/mobiltelefon/samsung-galaxy-s25-ultra-5g-smartphone-12256gb-titanium-black/877349",
+      "price": 5490,
+      "originalPrice": 6190,
+      "discount": "-11%",
+      "category": "Hörlurar",
+      "image": "https://unsplash.com/photos/black-headphones-on-white-table-uNC9-RgzjTA?w=800&h=800&fit=crop",
+      "url": "https://www.elgiganten.se/product/tv-ljud-smart-hem/horlurar-tillbehor/horlurar/apple-airpods-max-usb-c-tradlosa-around-ear-horlurar-midnight/825334",
       "hot": true,
       "firstSeen": "2026-04-07T08:00:00.000Z"
     },
