@@ -429,7 +429,7 @@ export default function Home() {
             {lastUpdated && (
               <span className="update-badge">
                 <span className="update-dot" />
-                Uppdaterad {timeAgo(lastUpdated)} sedan
+                {timeAgo(lastUpdated)} sedan
               </span>
             )}
           </div>

@@ -34,20 +34,6 @@
   ],
   "deals": [
     {
-      "id": 1,
-      "title": "Electrolux Clean 600 Dammsugare EB61C360",
-      "brand": "Electrolux",
-      "store": "Elgiganten",
-      "price": 2499,
-      "originalPrice": 3995,
-      "discount": "-37%",
-      "category": "Dammsugare",
-      "image": "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800&h=800&fit=crop",
-      "url": "https://www.elgiganten.se/product/hem-hushall-tradgard/dammsugare-rengoring/dammsugare-med-pase/electrolux-clean-600-dammsugare-med-pase-eb61c360/681294",
-      "hot": true,
-      "firstSeen": "2026-04-07T06:00:00.000Z"
-    },
-    {
       "id": 2,
       "title": "Samsung Galaxy S25 Ultra 5G 12/256GB",
       "brand": "Samsung",
@@ -60,20 +46,6 @@
       "url": "https://www.elgiganten.se/product/mobiler-tablets-smartklockor/mobiltelefon/samsung-galaxy-s25-ultra-5g-smartphone-12256gb-titanium-black/877349",
       "hot": true,
       "firstSeen": "2026-04-07T08:00:00.000Z"
-    },
-    {
-      "id": 3,
-      "title": "Dreame X50 Ultra Robotdammsugare",
-      "brand": "Dreame",
-      "store": "Elgiganten",
-      "price": 9990,
-      "originalPrice": 15990,
-      "discount": "-38%",
-      "category": "Dammsugare",
-      "image": "https://images.unsplash.com/photo-1667685864093-104d2c8acbfa?w=800&h=800&fit=crop",
-      "url": "https://www.elgiganten.se/product/hem-hushall-tradgard/dammsugare-rengoring/robotdammsugare/dreame-x50-ultra-stadrobot-r2489a-vit/979512",
-      "hot": true,
-      "firstSeen": "2026-04-07T07:00:00.000Z"
     },
     {
       "id": 4,
@@ -188,20 +160,6 @@
       "firstSeen": "2026-04-07T10:30:00.000Z"
     },
     {
-      "id": 12,
-      "title": "Samsung Odyssey G5 27\" QHD OLED Gamingskärm",
-      "brand": "Samsung",
-      "store": "Elgiganten",
-      "price": 4490,
-      "originalPrice": 5990,
-      "discount": "-25%",
-      "category": "Gaming",
-      "image": "https://images.unsplash.com/photo-1616763355548-1b11cea702ee?w=800&h=800&fit=crop",
-      "url": "https://www.elgiganten.se/product/datorer-kontor/skarmar/samsung-odyssey-g5-27qhdoled180hz003ms-gamingskarm/849200",
-      "hot": false,
-      "firstSeen": "2026-04-06T11:00:00.000Z"
-    },
-    {
       "id": 13,
       "title": "Samsung Galaxy S24 5G 8/128GB",
       "brand": "Samsung",
@@ -228,20 +186,6 @@
       "url": "https://www.elgiganten.se/product/mobiler-tablets-smartklockor/surfplatta/samsung-galaxy-tab-a9-lte-surfplatta-464gb-grafit/742270",
       "hot": true,
       "firstSeen": "2026-04-07T07:30:00.000Z"
-    },
-    {
-      "id": 15,
-      "title": "Dyson Gen5 Detect Absolute Skaftdammsugare",
-      "brand": "Dyson",
-      "store": "Elgiganten",
-      "price": 6990,
-      "originalPrice": 9490,
-      "discount": "-26%",
-      "category": "Dammsugare",
-      "image": "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800&h=800&fit=crop",
-      "url": "https://www.elgiganten.se/product/hem-hushall-tradgard/dammsugare-rengoring/skaftdammsugare/dyson-gen5-detect-absolute-sladdlos-skaftdammsugare-446989-01/758445",
-      "hot": true,
-      "firstSeen": "2026-04-07T06:30:00.000Z"
     },
     {
       "id": 16,
