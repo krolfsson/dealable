@@ -481,7 +481,7 @@ export default function Home() {
                   />
                   <span className="card-badge gradient-badge" style={{
                     position: "absolute", top: 8, left: 8,
-                    color: "#1a1a1a", fontWeight: 700, borderRadius: 100,
+                    color: "#cecece", fontWeight: 700, borderRadius: 100,
                   }}>
                     {deal.discount}
                   </span>
