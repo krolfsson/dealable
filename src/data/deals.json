@@ -4,32 +4,32 @@
     {
       "id": "lyko",
       "name": "Lyko",
-      "tagline": "Upp till 50% på hudvård & makeup",
+      "tagline": "Alla våra deals & fynd!",
       "category": "Beauty",
       "color1": "#f9a8d4",
       "color2": "#c084fc",
       "emoji": "💄",
-      "url": "https://www.lyko.com/sv"
+      "url": "https://lyko.com/sv/deals-fynd"
     },
     {
       "id": "elgiganten",
       "name": "Elgiganten",
-      "tagline": "Påskrea – tusentals produkter nedsatta",
+      "tagline": "Kampanj på TV, ljud & smart hem!",
       "category": "Tech",
       "color1": "#60a5fa",
       "color2": "#818cf8",
       "emoji": "⚡",
-      "url": "https://www.elgiganten.se/kampanj/paskrea"
+      "url": "https://www.elgiganten.se/kampanj/aktuell-kampanj/aktuell-kampanj-ljud-tv-smarta-hem"
     },
     {
       "id": "sellpy",
       "name": "Sellpy",
-      "tagline": "Extra 30% på allt second hand",
+      "tagline": "Varor som nyligen blivit billigare!",
       "category": "Second Hand",
       "color1": "#34d399",
       "color2": "#a3e635",
       "emoji": "♻️",
-      "url": "https://www.sellpy.se"
+      "url": "https://www.sellpy.se/store/curated/daily-deals"
     }
   ],
   "deals": [
