@@ -96,6 +96,8 @@ export default function Home() {
     );
   }
 
+    filtered = filtered.filter((d) => parseDiscountValue(d.discount) > 0);
+
   // ─── Sort ───
   const sorted = [...filtered].sort((a, b) => {
     if (sortBy === "latest") {
