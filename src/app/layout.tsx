@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Dealable – Bästa deals från svenska butiker",
-  description: "Hitta de bästa erbjudandena från Elgiganten, Webhallen, CDON, Lyko och fler svenska e-handlare. Uppdateras varannan timme.",
+  title: "Dealable – Alla bästa deals från svenska butiker online",
+  description: "Uppdateras varannan timme.",
 };
 
 export default function RootLayout({
