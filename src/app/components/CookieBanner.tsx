@@ -4,24 +4,50 @@ import { useState, useEffect } from 'react';
 
 export default function CookieBanner() {
   const [visible, setVisible] = useState(false);
+  const [analyticsLoaded, setAnalyticsLoaded] = useState(false);
 
   useEffect(() => {
     try {
       const consent = localStorage.getItem('cookie-consent');
       if (!consent) {
         setVisible(true);
+      } else if (consent === 'accepted') {
+        loadAnalytics();
       }
     } catch {
       setVisible(true);
     }
   }, []);
 
+  const loadAnalytics = () => {
+    if (analyticsLoaded) return;
+    try {
+      const script = document.createElement('script');
+      script.src = 'https://www.googletagmanager.com/gtag/js?id=G-CG97GM2S4L';
+      script.async = true;
+      document.head.appendChild(script);
+
+      script.onload = () => {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(...args: unknown[]) {
+          window.dataLayer.push(args);
+        }
+        gtag('js', new Date());
+        gtag('config', 'G-CG97GM2S4L');
+      };
+
+      setAnalyticsLoaded(true);
+    } catch {
+      // Analytics blocked
+    }
+  };
+
   const acceptCookies = () => {
     try {
       localStorage.setItem('cookie-consent', 'accepted');
     } catch {}
     setVisible(false);
-    window.location.reload();
+    loadAnalytics();
   };
 
   const declineCookies = () => {
