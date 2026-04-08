@@ -354,9 +354,9 @@ export default function Home() {
             min-width: 0 !important;
             min-height: 0 !important;
             height: auto !important;
-            padding: 10px !important;
+            padding: 8px !important;
           }
-          .card-image-spacer { display: block !important; width: 100%; padding-bottom: 85%; }
+          .card-image-spacer { display: block !important; width: 100%; padding-bottom: 65%; }
           .deal-card .card-info { padding: 8px 10px 10px; }
           .deal-card .card-brand { font-size: 9px; }
           .deal-card .card-title { font-size: 12px; }
