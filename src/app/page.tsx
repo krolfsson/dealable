@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import type { Deal } from "@/lib/scraper";
 import { timeAgo, formatPrice, parseDiscountValue } from "@/lib/scraper";
 
@@ -38,29 +38,87 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    async function loadDeals() {
-      try {
-        setLoading(true);
-        const res = await fetch("/api/deals");
-        if (!res.ok) throw new Error("Kunde inte hämta deals");
-        const data = await res.json();
+  // ─── Pull-to-refresh state ───
+  const [pullDistance, setPullDistance] = useState(0);
+  const [refreshing, setRefreshing] = useState(false);
+  const touchStartY = useRef(0);
+  const isPulling = useRef(false);
+  const PULL_THRESHOLD = 100; // ~3cm på de flesta skärmar
 
-        setDeals(data.deals);
-        setCategories(data.categories);
-        setStores(data.stores);
-        setLastUpdated(data.lastUpdated);
-        setError(null);
-      } catch (err) {
-        console.error("Failed to load deals:", err);
-        setError("Kunde inte ladda deals. Försök igen senare.");
-      } finally {
-        setLoading(false);
-      }
+  const loadDeals = useCallback(async () => {
+    try {
+      setLoading(true);
+      const res = await fetch("/api/deals");
+      if (!res.ok) throw new Error("Kunde inte hämta deals");
+      const data = await res.json();
+
+      setDeals(data.deals);
+      setCategories(data.categories);
+      setStores(data.stores);
+      setLastUpdated(data.lastUpdated);
+      setError(null);
+    } catch (err) {
+      console.error("Failed to load deals:", err);
+      setError("Kunde inte ladda deals. Försök igen senare.");
+    } finally {
+      setLoading(false);
     }
-
-    loadDeals();
   }, []);
+
+  useEffect(() => {
+    loadDeals();
+  }, [loadDeals]);
+
+  // ─── Pull-to-refresh touch handlers ───
+  useEffect(() => {
+    const handleTouchStart = (e: TouchEvent) => {
+      if (window.scrollY === 0) {
+        touchStartY.current = e.touches[0].clientY;
+        isPulling.current = true;
+      }
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (!isPulling.current || refreshing) return;
+
+      const currentY = e.touches[0].clientY;
+      const diff = currentY - touchStartY.current;
+
+      if (diff > 0 && window.scrollY === 0) {
+        // Dämpa rörelsen (gummibands-känsla)
+        const dampened = Math.min(diff * 0.4, 150);
+        setPullDistance(dampened);
+
+        if (diff > 10) {
+          e.preventDefault();
+        }
+      }
+    };
+
+    const handleTouchEnd = async () => {
+      if (!isPulling.current) return;
+      isPulling.current = false;
+
+      if (pullDistance >= PULL_THRESHOLD) {
+        setRefreshing(true);
+        setPullDistance(PULL_THRESHOLD);
+        await loadDeals();
+        setRefreshing(false);
+      }
+
+      setPullDistance(0);
+    };
+
+    document.addEventListener("touchstart", handleTouchStart, { passive: true });
+    document.addEventListener("touchmove", handleTouchMove, { passive: false });
+    document.addEventListener("touchend", handleTouchEnd, { passive: true });
+
+    return () => {
+      document.removeEventListener("touchstart", handleTouchStart);
+      document.removeEventListener("touchmove", handleTouchMove);
+      document.removeEventListener("touchend", handleTouchEnd);
+    };
+  }, [pullDistance, refreshing, loadDeals]);
 
   // ─── Filter ───
   let filtered =
@@ -108,6 +166,9 @@ export default function Home() {
     cheapest: "Billigast 💰",
     expensive: "Dyrast 💎",
   };
+
+  // Pull-to-refresh progress (0 → 1)
+  const pullProgress = Math.min(pullDistance / PULL_THRESHOLD, 1);
 
   return (
     <div style={{ minHeight: "100vh", background: "#faf8ff" }}>
@@ -242,6 +303,37 @@ export default function Home() {
           50% { opacity: 0.4; }
         }
 
+        /* ─── Pull-to-refresh indicator ─── */
+        .pull-indicator {
+          position: fixed;
+          top: 0;
+          left: 50%;
+          transform: translateX(-50%);
+          z-index: 100;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          pointer-events: none;
+          transition: opacity 0.2s;
+        }
+        .pull-spinner {
+          width: 36px;
+          height: 36px;
+          border-radius: 50%;
+          background: #fff;
+          box-shadow: 0 2px 12px rgba(168, 85, 247, 0.2);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 18px;
+        }
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+        .pull-spinner.spinning {
+          animation: spin 0.8s linear infinite;
+        }
+
         @media (max-width: 640px) {
           .deal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
           .deal-card { flex-direction: column !important; }
@@ -269,6 +361,25 @@ export default function Home() {
           .sort-option { font-size: 11px !important; padding: 3px 7px !important; white-space: nowrap !important; }
         }
       `}</style>
+
+      {/* ━━ PULL-TO-REFRESH INDICATOR ━━ */}
+      {(pullDistance > 0 || refreshing) && (
+        <div
+          className="pull-indicator"
+          style={{
+            top: Math.min(pullDistance, 150) - 36,
+            opacity: refreshing ? 1 : pullProgress,
+          }}
+        >
+          <div className={`pull-spinner ${refreshing ? "spinning" : ""}`}
+            style={{
+              transform: refreshing ? undefined : `rotate(${pullProgress * 360}deg)`,
+            }}
+          >
+            {refreshing ? "⏳" : pullProgress >= 1 ? "🔄" : "↓"}
+          </div>
+        </div>
+      )}
 
       {/* ━━ STICKY HEADER ━━ */}
       <header className="sticky-header">
