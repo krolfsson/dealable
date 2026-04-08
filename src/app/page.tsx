@@ -30,7 +30,7 @@ const CATEGORY_EMOJIS: Record<string, string> = {
   "Övrigt": "📦",
 };
 
-type SortOption = "latest" | "discount";
+type SortOption = "latest" | "discount" | "price";
 
 function parseTimeAgoMinutes(dateStr: string): number {
   const now = new Date();
@@ -97,12 +97,15 @@ export default function Home() {
   }
 
   // ─── Sort ───
-   const sorted = [...filtered].sort((a, b) => {
+  const sorted = [...filtered].sort((a, b) => {
     if (sortBy === "latest") {
       return parseTimeAgoMinutes(a.firstSeen) - parseTimeAgoMinutes(b.firstSeen);
     }
     if (sortBy === "discount") {
       return parseDiscountValue(b.discount) - parseDiscountValue(a.discount);
+    }
+    if (sortBy === "price") {
+      return a.price - b.price;
     }
     return 0;
   });
@@ -110,6 +113,7 @@ export default function Home() {
   const sortLabels: Record<SortOption, string> = {
     latest: "Senaste 🕐",
     discount: "Rabatt 💸",
+    price: "Pris 💰",
   };
 
   return (
@@ -485,7 +489,7 @@ export default function Home() {
             )}
           </div>
           <div style={{ display: "flex", gap: 4, alignItems: "center", flexShrink: 0 }}>
-             {(["latest", "discount"] as SortOption[]).map((option) => (
+                         {(["latest", "discount", "price"] as SortOption[]).map((option) => (
               <button
                 key={option}
                 className={`sort-option ${sortBy === option ? "active" : ""}`}
@@ -536,14 +540,6 @@ export default function Home() {
                   }}>
                     {deal.discount}
                   </span>
-                  {parseDiscountValue(deal.discount) >= 50 && (
-                    <span style={{
-                      position: "absolute", top: 6, right: 6,
-                      fontSize: 20, filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.2))",
-                    }}>
-                      🔥
-                    </span>
-                  )}
                 </div>
 
                 <div className="card-info" style={{
@@ -558,7 +554,6 @@ export default function Home() {
                     }}>
                       {deal.brand}
                     </p>
-                    {deal.hot && <span style={{ fontSize: 11 }}>🔥</span>}
                     <span className="card-store">• {deal.store}</span>
                   </div>
 
