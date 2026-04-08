@@ -30,7 +30,7 @@ const CATEGORY_EMOJIS: Record<string, string> = {
   "Övrigt": "📦",
 };
 
-type SortOption = "popular" | "latest" | "discount";
+type SortOption = "latest" | "discount";
 
 function parseTimeAgoMinutes(dateStr: string): number {
   const now = new Date();
@@ -46,7 +46,7 @@ export default function Home() {
   const [lastUpdated, setLastUpdated] = useState<string>("");
   const [activeCategory, setActiveCategory] = useState("Alla");
   const [activeStore, setActiveStore] = useState("Alla");
-  const [sortBy, setSortBy] = useState<SortOption>("popular");
+ const [sortBy, setSortBy] = useState<SortOption>("latest");
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -97,11 +97,7 @@ export default function Home() {
   }
 
   // ─── Sort ───
-  const sorted = [...filtered].sort((a, b) => {
-    if (sortBy === "popular") {
-      if (a.hot !== b.hot) return a.hot ? -1 : 1;
-      return parseTimeAgoMinutes(a.firstSeen) - parseTimeAgoMinutes(b.firstSeen);
-    }
+   const sorted = [...filtered].sort((a, b) => {
     if (sortBy === "latest") {
       return parseTimeAgoMinutes(a.firstSeen) - parseTimeAgoMinutes(b.firstSeen);
     }
@@ -112,7 +108,6 @@ export default function Home() {
   });
 
   const sortLabels: Record<SortOption, string> = {
-    popular: "Populärt 🔥",
     latest: "Senaste 🕐",
     discount: "Rabatt 💸",
   };
@@ -490,7 +485,7 @@ export default function Home() {
             )}
           </div>
           <div style={{ display: "flex", gap: 4, alignItems: "center", flexShrink: 0 }}>
-            {(["popular", "latest", "discount"] as SortOption[]).map((option) => (
+             {(["latest", "discount"] as SortOption[]).map((option) => (
               <button
                 key={option}
                 className={`sort-option ${sortBy === option ? "active" : ""}`}
