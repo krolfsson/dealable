@@ -6,22 +6,29 @@ export default function CookieBanner() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    const consent = localStorage.getItem('cookie-consent');
-    if (!consent) {
+    try {
+      const consent = localStorage.getItem('cookie-consent');
+      if (!consent) {
+        setVisible(true);
+      }
+    } catch {
       setVisible(true);
     }
   }, []);
 
   const acceptCookies = () => {
-    localStorage.setItem('cookie-consent', 'accepted');
+    try {
+      localStorage.setItem('cookie-consent', 'accepted');
+    } catch {}
     setVisible(false);
+    window.location.reload();
   };
 
   const declineCookies = () => {
-    localStorage.setItem('cookie-consent', 'declined');
+    try {
+      localStorage.setItem('cookie-consent', 'declined');
+    } catch {}
     setVisible(false);
-    // Inaktivera Google Analytics
-    window.location.reload();
   };
 
   if (!visible) return null;
@@ -79,7 +86,7 @@ export default function CookieBanner() {
               lineHeight: 1.5,
             }}
           >
-            Vi använder cookies för att analysera trafik och förbättra din upplevelse. 
+            Vi använder cookies för att analysera trafik och förbättra din upplevelse.
             Genom att klicka &quot;Acceptera&quot; godkänner du vår användning av cookies.
           </p>
         </div>

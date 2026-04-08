@@ -55,12 +55,15 @@ export default function RootLayout({
 />
 <Script id="google-analytics" strategy="afterInteractive">
   {`
-    if (localStorage.getItem('cookie-consent') === 'accepted') {
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-CG97GM2S4L');
-    }
+    try {
+      var consent = localStorage.getItem('cookie-consent');
+      if (consent === 'accepted') {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-CG97GM2S4L');
+      }
+    } catch(e) {}
   `}
 </Script>
         {children}
