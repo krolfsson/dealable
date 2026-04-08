@@ -17,24 +17,18 @@ interface FeaturedBrand {
   url: string;
 }
 
-// ─── Categories (15) ───
-const categories = [
-  { name: "Alla", emoji: "✨" },
-  { name: "Mobiler", emoji: "📱" },
-  { name: "TV", emoji: "📺" },
-  { name: "Datorer", emoji: "💻" },
-  { name: "Gaming", emoji: "🎮" },
-  { name: "Ljud", emoji: "🔊" },
-  { name: "Komponenter", emoji: "🧩" },
-  { name: "Nätverk", emoji: "📡" },
-  { name: "Surfplattor", emoji: "📋" },
-  { name: "Dammsugare", emoji: "🧹" },
-  { name: "Vitvaror", emoji: "🧺" },
-  { name: "Kaffe", emoji: "☕" },
-  { name: "Kök", emoji: "🍳" },
-  { name: "Trädgård", emoji: "🌿" },
-  { name: "Övrigt", emoji: "📦" },
-];
+// ─── Category config med emojis ───
+const CATEGORY_EMOJIS: Record<string, string> = {
+  "Alla": "✨",
+  "Padelracketar": "🏸",
+  "Bollar": "🎾",
+  "Skor": "👟",
+  "Kläder": "👕",
+  "Väskor": "🎒",
+  "Tillbehör": "🎯",
+  "Skydd": "🛡️",
+  "Övrigt": "📦",
+};
 
 type SortOption = "popular" | "latest" | "discount";
 
@@ -46,23 +40,39 @@ function parseTimeAgoMinutes(dateStr: string): number {
 
 export default function Home() {
   const [deals, setDeals] = useState<Deal[]>([]);
+  const [categories, setCategories] = useState<string[]>(["Alla"]);
+  const [stores, setStores] = useState<string[]>([]);
   const [featuredBrands, setFeaturedBrands] = useState<FeaturedBrand[]>([]);
   const [lastUpdated, setLastUpdated] = useState<string>("");
   const [activeCategory, setActiveCategory] = useState("Alla");
+  const [activeStore, setActiveStore] = useState("Alla");
   const [sortBy, setSortBy] = useState<SortOption>("popular");
   const [searchQuery, setSearchQuery] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    import("@/data/deals.json").then((mod) => {
-      const data = mod.default as {
-        lastUpdated: string;
-        deals: Deal[];
-        featuredBrands?: FeaturedBrand[];
-      };
-      setDeals(data.deals);
-      setLastUpdated(data.lastUpdated);
-      if (data.featuredBrands) setFeaturedBrands(data.featuredBrands);
-    });
+    async function loadDeals() {
+      try {
+        setLoading(true);
+        const res = await fetch("/api/deals");
+        if (!res.ok) throw new Error("Kunde inte hämta deals");
+        const data = await res.json();
+
+        setDeals(data.deals);
+        setCategories(data.categories);
+        setStores(data.stores);
+        setLastUpdated(data.lastUpdated);
+        setError(null);
+      } catch (err) {
+        console.error("Failed to load deals:", err);
+        setError("Kunde inte ladda deals. Försök igen senare.");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadDeals();
   }, []);
 
   // ─── Filter ───
@@ -70,6 +80,10 @@ export default function Home() {
     activeCategory === "Alla"
       ? [...deals]
       : deals.filter((d) => d.category === activeCategory);
+
+  if (activeStore !== "Alla") {
+    filtered = filtered.filter((d) => d.store === activeStore);
+  }
 
   if (searchQuery.trim()) {
     const q = searchQuery.toLowerCase();
@@ -261,6 +275,24 @@ export default function Home() {
           color: #fff;
         }
 
+        .store-select {
+          font-family: 'Quicksand', sans-serif;
+          font-size: 13px;
+          font-weight: 600;
+          padding: 6px 12px;
+          border-radius: 100px;
+          border: 1.5px solid #e9d5ff;
+          background: #f5f3ff;
+          color: #7e22ce;
+          cursor: pointer;
+          outline: none;
+          transition: all 0.2s;
+        }
+        .store-select:focus {
+          border-color: #c084fc;
+          box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.15);
+        }
+
         .gradient-badge {
           background: linear-gradient(135deg, #a855f7, #ec4899) !important;
         }
@@ -355,7 +387,19 @@ export default function Home() {
                 }}
               />
             </div>
-            <div style={{ width: 20 }} />
+            {/* ─── Butik-filter ─── */}
+            {stores.length > 1 && (
+              <select
+                className="store-select"
+                value={activeStore}
+                onChange={(e) => setActiveStore(e.target.value)}
+              >
+                <option value="Alla">Alla butiker</option>
+                {stores.map((store) => (
+                  <option key={store} value={store}>{store}</option>
+                ))}
+              </select>
+            )}
           </div>
         </nav>
 
@@ -367,22 +411,22 @@ export default function Home() {
           }}>
             {categories.map((cat) => (
               <button
-                key={cat.name}
+                key={cat}
                 className="cat-btn"
-                onClick={() => setActiveCategory(cat.name)}
+                onClick={() => setActiveCategory(cat)}
                 style={{
                   display: "flex", alignItems: "center", gap: 5,
                   padding: "8px 14px", borderRadius: 100, border: "none",
                   fontSize: 13, cursor: "pointer", whiteSpace: "nowrap", flexShrink: 0,
-                  background: activeCategory === cat.name
+                  background: activeCategory === cat
                     ? "linear-gradient(135deg, #a855f7, #ec4899)"
                     : "#f3e8ff",
-                  color: activeCategory === cat.name ? "#fff" : "#7e22ce",
+                  color: activeCategory === cat ? "#fff" : "#7e22ce",
                   transition: "all 0.2s",
                 }}
               >
-                <span>{cat.emoji}</span>
-                <span>{cat.name}</span>
+                <span>{CATEGORY_EMOJIS[cat] || "📦"}</span>
+                <span>{cat}</span>
               </button>
             ))}
           </div>
@@ -429,7 +473,7 @@ export default function Home() {
             {lastUpdated && (
               <span className="update-badge">
                 <span className="update-dot" />
-                {timeAgo(lastUpdated)} sedan
+                Uppdaterad {timeAgo(lastUpdated)} sedan
               </span>
             )}
           </div>
@@ -534,7 +578,8 @@ export default function Home() {
           ))}
         </div>
 
-        {sorted.length === 0 && deals.length > 0 && (
+        {/* ─── Empty states ─── */}
+        {!loading && sorted.length === 0 && deals.length > 0 && (
           <div style={{ textAlign: "center", padding: "60px 20px", color: "#a78bfa" }}>
             <p style={{ fontSize: 40, margin: 0 }}>🔍</p>
             <p style={{ fontSize: 16, fontWeight: 600 }}>Inga deals hittades</p>
@@ -542,10 +587,28 @@ export default function Home() {
           </div>
         )}
 
-        {deals.length === 0 && (
+        {loading && (
           <div style={{ textAlign: "center", padding: "60px 20px", color: "#a78bfa" }}>
             <p style={{ fontSize: 40, margin: 0 }}>⏳</p>
-            <p style={{ fontSize: 16, fontWeight: 600 }}>Laddar deals...</p>
+            <p style={{ fontSize: 16, fontWeight: 600 }}>Laddar deals från Awin...</p>
+            <p style={{ fontSize: 14 }}>Första laddningen kan ta några sekunder</p>
+          </div>
+        )}
+
+        {error && (
+          <div style={{ textAlign: "center", padding: "60px 20px", color: "#f43f5e" }}>
+            <p style={{ fontSize: 40, margin: 0 }}>⚠️</p>
+            <p style={{ fontSize: 16, fontWeight: 600 }}>{error}</p>
+            <button
+              onClick={() => window.location.reload()}
+              style={{
+                marginTop: 12, padding: "8px 20px", borderRadius: 100,
+                border: "none", background: "linear-gradient(135deg, #a855f7, #ec4899)",
+                color: "#fff", fontWeight: 600, cursor: "pointer",
+              }}
+            >
+              Försök igen
+            </button>
           </div>
         )}
       </section>
@@ -559,7 +622,7 @@ export default function Home() {
         }}>
           <span style={{ fontSize: 13, color: "#a78bfa" }}>© 2026 Dealable</span>
           <span style={{ fontSize: 12, color: "#c4b5fd" }}>
-            Deals från Elgiganten, Webhallen, Lyko, Sellpy m.fl.
+            Deals från {stores.length > 0 ? stores.join(", ") : "Padel Market"} via Awin
           </span>
           <span style={{ fontSize: 13, color: "#a78bfa" }}>Made in Stockholm 🇸🇪</span>
         </div>
