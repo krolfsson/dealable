@@ -178,8 +178,14 @@ export default function Home() {
         }
 
         .deal-card { flex-direction: row; }
-        .deal-card .card-image { width: 110px; min-width: 110px; min-height: 110px; }
-        .deal-card .card-info { padding: 14px; }
+        .deal-card .card-image {
+          width: 140px;
+          min-width: 140px;
+          min-height: 140px;
+          padding: 12px;
+          background: #f5f3ff;
+        }
+        .deal-card .card-info { padding: 16px; }
         .deal-card .card-brand { font-size: 11px; }
         .deal-card .card-title { font-size: 15px; }
         .deal-card .card-price { font-size: 16px; }
@@ -343,7 +349,13 @@ export default function Home() {
 
           .deal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
           .deal-card { flex-direction: column !important; }
-          .deal-card .card-image { width: 100% !important; min-width: 0 !important; min-height: 0 !important; height: auto !important; }
+          .deal-card .card-image {
+            width: 100% !important;
+            min-width: 0 !important;
+            min-height: 0 !important;
+            height: auto !important;
+            padding: 10px !important;
+          }
           .card-image-spacer { display: block !important; width: 100%; padding-bottom: 85%; }
           .deal-card .card-info { padding: 8px 10px 10px; }
           .deal-card .card-brand { font-size: 9px; }
@@ -513,7 +525,7 @@ export default function Home() {
                 }}
               >
                 <div className="card-image" style={{
-                  position: "relative", background: "#f5f3ff", overflow: "hidden",
+                  position: "relative", overflow: "hidden",
                 }}>
                   <div className="card-image-spacer" />
                   <Image
@@ -521,7 +533,7 @@ export default function Home() {
                     alt={deal.title}
                     fill
                     sizes="(max-width: 640px) 50vw, 140px"
-                    style={{ objectFit: "cover" }}
+                    style={{ objectFit: "contain" }}
                   />
                   <span className="card-badge gradient-badge" style={{
                     position: "absolute", top: 8, left: 8,
@@ -590,7 +602,7 @@ export default function Home() {
         {loading && (
           <div style={{ textAlign: "center", padding: "60px 20px", color: "#a78bfa" }}>
             <p style={{ fontSize: 40, margin: 0 }}>⏳</p>
-            <p style={{ fontSize: 16, fontWeight: 600 }}>Laddar deals...</p>
+            <p style={{ fontSize: 16, fontWeight: 600 }}>Laddar deals från Awin...</p>
             <p style={{ fontSize: 14 }}>Första laddningen kan ta några sekunder</p>
           </div>
         )}
@@ -622,7 +634,7 @@ export default function Home() {
         }}>
           <span style={{ fontSize: 13, color: "#a78bfa" }}>© 2026 Dealable</span>
           <span style={{ fontSize: 12, color: "#c4b5fd" }}>
-            Sidan innehåller affiliatelänkar från {stores.length > 0 ? stores.join(", ") : "Padel Market"}.
+            Deals från {stores.length > 0 ? stores.join(", ") : "Padel Market"} via Awin
           </span>
           <span style={{ fontSize: 13, color: "#a78bfa" }}>Made in Stockholm 🇸🇪</span>
         </div>
