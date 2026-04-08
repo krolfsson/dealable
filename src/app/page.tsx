@@ -183,7 +183,7 @@ export default function Home() {
           min-width: 140px;
           min-height: 140px;
           padding: 12px;
-          background: #f5f3ff;
+          background: #ffffff;
         }
         .deal-card .card-info { padding: 16px; }
         .deal-card .card-brand { font-size: 11px; }
@@ -602,7 +602,7 @@ export default function Home() {
         {loading && (
           <div style={{ textAlign: "center", padding: "60px 20px", color: "#a78bfa" }}>
             <p style={{ fontSize: 40, margin: 0 }}>⏳</p>
-            <p style={{ fontSize: 16, fontWeight: 600 }}>Laddar deals från Awin...</p>
+            <p style={{ fontSize: 16, fontWeight: 600 }}>Laddar deals...</p>
             <p style={{ fontSize: 14 }}>Första laddningen kan ta några sekunder</p>
           </div>
         )}
@@ -634,7 +634,7 @@ export default function Home() {
         }}>
           <span style={{ fontSize: 13, color: "#a78bfa" }}>© 2026 Dealable</span>
           <span style={{ fontSize: 12, color: "#c4b5fd" }}>
-            Deals från {stores.length > 0 ? stores.join(", ") : "Padel Market"} via Awin
+            Innehåller affiliatelänkar från {stores.length > 0 ? stores.join(", ") : "Padel Market"}.
           </span>
           <span style={{ fontSize: 13, color: "#a78bfa" }}>Made in Stockholm 🇸🇪</span>
         </div>
