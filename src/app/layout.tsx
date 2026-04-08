@@ -1,6 +1,7 @@
 import Script from 'next/script'
 import type { Metadata } from "next";
 import "./globals.css";
+import JsonLd from './components/JsonLd';
 
 export const metadata: Metadata = {
   title: {
@@ -46,6 +47,7 @@ export default function RootLayout({
   return (
     <html lang="sv">
       <body>
+        <JsonLd />
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-CG97GM2S4L"
           strategy="afterInteractive"
