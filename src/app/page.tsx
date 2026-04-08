@@ -30,7 +30,7 @@ const CATEGORY_EMOJIS: Record<string, string> = {
   "Övrigt": "📦",
 };
 
-type SortOption = "latest" | "discount" | "price";
+type SortOption = "latest" | "discount" | "cheapest" | "expensive";
 
 function parseTimeAgoMinutes(dateStr: string): number {
   const now = new Date();
@@ -104,8 +104,11 @@ export default function Home() {
     if (sortBy === "discount") {
       return parseDiscountValue(b.discount) - parseDiscountValue(a.discount);
     }
-    if (sortBy === "price") {
+    if (sortBy === "cheapest") {
       return a.price - b.price;
+    }
+    if (sortBy === "expensive") {
+      return b.price - a.price;
     }
     return 0;
   });
@@ -113,7 +116,8 @@ export default function Home() {
   const sortLabels: Record<SortOption, string> = {
     latest: "Senaste 🕐",
     discount: "Rabatt 💸",
-    price: "Pris 💰",
+    cheapest: "Billigast 💰",
+    expensive: "Dyrast 💎",
   };
 
   return (
@@ -473,23 +477,20 @@ export default function Home() {
       )}
 
       {/* ━━ SORT BAR ━━ */}
-      <section style={{ maxWidth: 1100, margin: "0 auto", padding: "20px 20px 8px" }}>
+        <section style={{ maxWidth: 1100, margin: "0 auto", padding: "20px 20px 8px" }}>
         <div className="sort-bar-inner" style={{
           display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8,
         }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <p className="sort-bar-count" style={{ fontSize: 14, color: "#9ca3af", margin: 0, whiteSpace: "nowrap" }}>
-              <span style={{ fontWeight: 600, color: "#7e22ce" }}>{sorted.length}</span> deals
-            </p>
+          <p className="sort-bar-count" style={{ fontSize: 14, color: "#9ca3af", margin: 0, whiteSpace: "nowrap" }}>
+            <span style={{ fontWeight: 600, color: "#7e22ce" }}>{sorted.length}</span> deals
             {lastUpdated && (
-              <span className="update-badge">
-                <span className="update-dot" />
-                Uppdaterad {timeAgo(lastUpdated)} sedan
+              <span className="update-badge update-badge-desktop">
+                {" "}<span className="update-dot" /> Uppdaterad {timeAgo(lastUpdated)} sedan
               </span>
             )}
-          </div>
+          </p>
           <div style={{ display: "flex", gap: 4, alignItems: "center", flexShrink: 0 }}>
-                         {(["latest", "discount", "price"] as SortOption[]).map((option) => (
+            {(["latest", "discount", "cheapest", "expensive"] as SortOption[]).map((option) => (
               <button
                 key={option}
                 className={`sort-option ${sortBy === option ? "active" : ""}`}
@@ -500,6 +501,14 @@ export default function Home() {
             ))}
           </div>
         </div>
+        {lastUpdated && (
+          <p className="update-badge-mobile" style={{
+            display: "none", textAlign: "center", margin: "10px 0 0",
+            fontSize: 11, color: "#a78bfa", fontWeight: 500,
+          }}>
+            <span className="update-dot" style={{ display: "inline-block", marginRight: 4 }} /> Uppdaterad {timeAgo(lastUpdated)} sedan
+          </p>
+        )}
       </section>
 
       {/* ━━ DEAL GRID ━━ */}
