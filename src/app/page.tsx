@@ -5,18 +5,6 @@ import { useState, useEffect } from "react";
 import type { Deal } from "@/lib/scraper";
 import { timeAgo, formatPrice, parseDiscountValue } from "@/lib/scraper";
 
-// ─── Featured brand type ───
-interface FeaturedBrand {
-  id: string;
-  name: string;
-  tagline: string;
-  category: string;
-  color1: string;
-  color2: string;
-  emoji: string;
-  url: string;
-}
-
 // ─── Category config med emojis ───
 const CATEGORY_EMOJIS: Record<string, string> = {
   "Alla": "✨",
@@ -42,11 +30,10 @@ export default function Home() {
   const [deals, setDeals] = useState<Deal[]>([]);
   const [categories, setCategories] = useState<string[]>(["Alla"]);
   const [stores, setStores] = useState<string[]>([]);
-  const [featuredBrands, setFeaturedBrands] = useState<FeaturedBrand[]>([]);
   const [lastUpdated, setLastUpdated] = useState<string>("");
   const [activeCategory, setActiveCategory] = useState("Alla");
   const [activeStore, setActiveStore] = useState("Alla");
- const [sortBy, setSortBy] = useState<SortOption>("latest");
+  const [sortBy, setSortBy] = useState<SortOption>("latest");
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -96,7 +83,7 @@ export default function Home() {
     );
   }
 
-    filtered = filtered.filter((d) => parseDiscountValue(d.discount) > 0);
+  filtered = filtered.filter((d) => parseDiscountValue(d.discount) > 0);
 
   // ─── Sort ───
   const sorted = [...filtered].sort((a, b) => {
@@ -158,13 +145,9 @@ export default function Home() {
             transform: scale(1.05);
             box-shadow: 0 8px 30px rgba(168, 85, 247, 0.15) !important;
           }
-          .featured-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 40px rgba(0,0,0,0.18) !important;
-          }
         }
 
-        .deal-card, .featured-card {
+        .deal-card {
           transition: transform 0.25s ease, box-shadow 0.25s ease;
         }
 
@@ -199,80 +182,6 @@ export default function Home() {
         .deal-card .card-badge { font-size: 11px; padding: 2px 7px; }
         .card-image-spacer { display: none; }
         .card-store { font-size: 10px; color: #a78bfa; font-weight: 500; }
-
-        /* ─── Featured grid ─── */
-        .featured-grid {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 16px;
-        }
-        .featured-card {
-          border-radius: 20px;
-          padding: 28px 24px;
-          color: #fff;
-          text-decoration: none;
-          display: flex;
-          flex-direction: column;
-          justify-content: space-between;
-          min-height: 180px;
-          position: relative;
-          overflow: hidden;
-          cursor: pointer;
-          box-shadow: 0 4px 20px rgba(0,0,0,0.12);
-        }
-        .featured-card .fc-emoji {
-          font-size: 40px;
-          margin-bottom: 12px;
-          filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
-        }
-        .featured-card .fc-name {
-          font-family: 'Fredoka', sans-serif;
-          font-weight: 700;
-          font-size: 24px;
-          margin: 0;
-          text-shadow: 0 1px 3px rgba(0,0,0,0.15);
-        }
-        .featured-card .fc-tagline {
-          font-family: 'Quicksand', sans-serif;
-          font-size: 14px;
-          font-weight: 600;
-          margin: 6px 0 0;
-          opacity: 0.92;
-        }
-        .featured-card .fc-cat {
-          font-family: 'Quicksand', sans-serif;
-          font-size: 11px;
-          font-weight: 700;
-          text-transform: uppercase;
-          letter-spacing: 1px;
-          opacity: 0.7;
-          margin-top: 14px;
-        }
-        .featured-card .fc-arrow {
-          position: absolute;
-          bottom: 20px;
-          right: 20px;
-          width: 32px;
-          height: 32px;
-          background: rgba(255,255,255,0.25);
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 16px;
-          backdrop-filter: blur(4px);
-        }
-        .featured-card::after {
-          content: '';
-          position: absolute;
-          top: -30%;
-          right: -20%;
-          width: 200px;
-          height: 200px;
-          background: rgba(255,255,255,0.08);
-          border-radius: 50%;
-          pointer-events: none;
-        }
 
         .sort-option {
           font-family: 'Quicksand', sans-serif;
@@ -334,24 +243,6 @@ export default function Home() {
         }
 
         @media (max-width: 640px) {
-          .featured-grid {
-            grid-template-columns: 1fr !important;
-            gap: 12px !important;
-          }
-          .featured-card {
-            min-height: 140px !important;
-            padding: 20px 18px !important;
-            flex-direction: row !important;
-            align-items: center !important;
-            gap: 16px;
-          }
-          .featured-card .fc-emoji { font-size: 32px; margin-bottom: 0; }
-          .featured-card .fc-name { font-size: 19px; }
-          .featured-card .fc-tagline { font-size: 12px; }
-          .featured-card .fc-cat { margin-top: 8px; font-size: 10px; }
-          .featured-card .fc-arrow { bottom: 14px; right: 14px; width: 28px; height: 28px; font-size: 14px; }
-          .featured-card .fc-text-wrap { flex: 1; }
-
           .deal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
           .deal-card { flex-direction: column !important; }
           .deal-card .card-image {
@@ -404,7 +295,6 @@ export default function Home() {
                 }}
               />
             </div>
-            {/* ─── Butik-filter ─── */}
             {stores.length > 1 && (
               <select
                 className="store-select"
@@ -450,36 +340,8 @@ export default function Home() {
         </div>
       </header>
 
-      {/* ━━ FEATURED BRANDS ━━ */}
-      {featuredBrands.length > 0 && activeCategory === "Alla" && !searchQuery && (
-        <section style={{ maxWidth: 1100, margin: "0 auto", padding: "24px 20px 8px" }}>
-          <div className="featured-grid">
-            {featuredBrands.map((brand) => (
-              <a
-                key={brand.id}
-                href={brand.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="featured-card"
-                style={{
-                  background: `linear-gradient(135deg, ${brand.color1}, ${brand.color2})`,
-                }}
-              >
-                <div className="fc-text-wrap">
-                  <div className="fc-emoji">{brand.emoji}</div>
-                  <p className="fc-name">{brand.name}</p>
-                  <p className="fc-tagline">{brand.tagline}</p>
-                  <p className="fc-cat">{brand.category}</p>
-                </div>
-                <span className="fc-arrow">→</span>
-              </a>
-            ))}
-          </div>
-        </section>
-      )}
-
       {/* ━━ SORT BAR ━━ */}
-        <section style={{ maxWidth: 1100, margin: "0 auto", padding: "20px 20px 8px" }}>
+      <section style={{ maxWidth: 1100, margin: "0 auto", padding: "20px 20px 8px" }}>
         <div className="sort-bar-inner" style={{
           display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8,
         }}>
