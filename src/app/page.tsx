@@ -178,8 +178,8 @@ export default function Home() {
         }
 
         .deal-card { flex-direction: row; }
-        .deal-card .card-image { width: 140px; min-width: 140px; min-height: 140px; }
-        .deal-card .card-info { padding: 16px; }
+        .deal-card .card-image { width: 110px; min-width: 110px; min-height: 110px; }
+        .deal-card .card-info { padding: 14px; }
         .deal-card .card-brand { font-size: 11px; }
         .deal-card .card-title { font-size: 15px; }
         .deal-card .card-price { font-size: 16px; }
@@ -344,7 +344,7 @@ export default function Home() {
           .deal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
           .deal-card { flex-direction: column !important; }
           .deal-card .card-image { width: 100% !important; min-width: 0 !important; min-height: 0 !important; height: auto !important; }
-          .card-image-spacer { display: block !important; width: 100%; padding-bottom: 100%; }
+          .card-image-spacer { display: block !important; width: 100%; padding-bottom: 85%; }
           .deal-card .card-info { padding: 8px 10px 10px; }
           .deal-card .card-brand { font-size: 9px; }
           .deal-card .card-title { font-size: 12px; }
@@ -590,7 +590,7 @@ export default function Home() {
         {loading && (
           <div style={{ textAlign: "center", padding: "60px 20px", color: "#a78bfa" }}>
             <p style={{ fontSize: 40, margin: 0 }}>⏳</p>
-            <p style={{ fontSize: 16, fontWeight: 600 }}>Laddar deals från Awin...</p>
+            <p style={{ fontSize: 16, fontWeight: 600 }}>Laddar deals...</p>
             <p style={{ fontSize: 14 }}>Första laddningen kan ta några sekunder</p>
           </div>
         )}
@@ -622,7 +622,7 @@ export default function Home() {
         }}>
           <span style={{ fontSize: 13, color: "#a78bfa" }}>© 2026 Dealable</span>
           <span style={{ fontSize: 12, color: "#c4b5fd" }}>
-            Deals från {stores.length > 0 ? stores.join(", ") : "Padel Market"} via Awin
+            Sidan innehåller affiliatelänkar från {stores.length > 0 ? stores.join(", ") : "Padel Market"}.
           </span>
           <span style={{ fontSize: 13, color: "#a78bfa" }}>Made in Stockholm 🇸🇪</span>
         </div>
