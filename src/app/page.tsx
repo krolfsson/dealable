@@ -179,10 +179,10 @@ export default function Home() {
 
         .deal-card { flex-direction: row; }
         .deal-card .card-image {
-          width: 140px;
-          min-width: 140px;
-          min-height: 140px;
-          padding: 12px;
+          width: 120px;
+          min-width: 120px;
+          min-height: 120px;
+          padding: 16px;
           background: #ffffff;
         }
         .deal-card .card-info { padding: 16px; }
