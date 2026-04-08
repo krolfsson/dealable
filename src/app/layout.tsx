@@ -1,3 +1,4 @@
+import CookieBanner from './components/CookieBanner';
 import Script from 'next/script'
 import type { Metadata } from "next";
 import "./globals.css";
@@ -48,19 +49,22 @@ export default function RootLayout({
     <html lang="sv">
       <body>
         <JsonLd />
-        <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-CG97GM2S4L"
-          strategy="afterInteractive"
-        />
-        <Script id="google-analytics" strategy="afterInteractive">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'G-CG97GM2S4L');
-          `}
-        </Script>
+<Script
+  src="https://www.googletagmanager.com/gtag/js?id=G-CG97GM2S4L"
+  strategy="afterInteractive"
+/>
+<Script id="google-analytics" strategy="afterInteractive">
+  {`
+    if (localStorage.getItem('cookie-consent') === 'accepted') {
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-CG97GM2S4L');
+    }
+  `}
+</Script>
         {children}
+        <CookieBanner />
       </body>
     </html>
   );
