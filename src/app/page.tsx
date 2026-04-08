@@ -536,6 +536,14 @@ export default function Home() {
                   }}>
                     {deal.discount}
                   </span>
+                  {parseDiscountValue(deal.discount) >= 50 && (
+                    <span style={{
+                      position: "absolute", top: 6, right: 6,
+                      fontSize: 20, filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.2))",
+                    }}>
+                      🔥
+                    </span>
+                  )}
                 </div>
 
                 <div className="card-info" style={{
