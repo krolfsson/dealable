@@ -487,7 +487,7 @@ export default function Home() {
             <span style={{ fontWeight: 600, color: "#7e22ce" }}>{sorted.length}</span> deals
             {lastUpdated && (
               <span className="update-badge update-badge-desktop">
-                {" "}<span className="update-dot" /> Uppdaterad {timeAgo(lastUpdated)} sedan
+                {" "}<span className="update-dot" /> {timeAgo(lastUpdated)} sedan
               </span>
             )}
           </p>
