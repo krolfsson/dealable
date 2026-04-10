@@ -1,10 +1,9 @@
 import { NextResponse } from "next/server";
 
-export const maxDuration = 300; // 5 min timeout
+export const maxDuration = 300;
 export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
-  // Skydda så bara Vercel Cron kan anropa
   const authHeader = request.headers.get("authorization");
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -13,7 +12,6 @@ export async function GET(request: Request) {
   try {
     console.log("🔄 Cron: Updating deal cache...");
 
-    // Dynamiskt importera och köra scrapern
     const { scrapeAllStores } = await import("@/lib/scraper");
     const { writeFileSync, mkdirSync } = await import("fs");
     const { join } = await import("path");
