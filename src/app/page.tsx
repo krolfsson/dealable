@@ -279,8 +279,7 @@ export default function Home() {
           .mobile-search { font-size: 12px !important; padding: 6px 12px !important; }
           .store-btn { font-size: 12px !important; padding: 8px 12px !important; }
           .store-scroll { justify-content: flex-start !important; flex-wrap: nowrap !important; }
-          .sort-bar-inner { flex-direction: column !important; align-items: flex-start !important; gap: 8px !important; }
-          .sort-bar-count { font-size: 12px !important; white-space: nowrap !important; }
+          .sort-bar-count { font-size: 11px !important; }
           .sort-option { font-size: 11px !important; padding: 3px 7px !important; white-space: nowrap !important; }
           .filter-option { font-size: 11px !important; padding: 3px 7px !important; white-space: nowrap !important; }
           .filter-row { gap: 4px !important; }
@@ -404,26 +403,57 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Sort & filter bar */}
+       {/* Sort & filter bar */}
       <section
         style={{ maxWidth: 1100, margin: "0 auto", padding: "20px 20px 8px" }}
       >
         <div
-          className="sort-bar-inner"
           style={{
             display: "flex",
-            justifyContent: "space-between",
+            flexDirection: "column",
             alignItems: "center",
-            gap: 12,
+            gap: 10,
           }}
         >
+          {/* Sort options */}
+          <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
+            {(["discount", "cheapest", "expensive"] as SortOption[]).map(
+              (option) => (
+                <button
+                  key={option}
+                  className={`sort-option ${sortBy === option ? "active" : ""}`}
+                  onClick={() => setSortBy(option)}
+                >
+                  {sortLabels[option]}
+                </button>
+              )
+            )}
+          </div>
+
+          {/* Discount filters */}
+          <div
+            className="filter-row"
+            style={{ display: "flex", gap: 6, alignItems: "center" }}
+          >
+            {(["all", "25", "50"] as DiscountFilter[]).map((option) => (
+              <button
+                key={option}
+                className={`filter-option ${minDiscount === option ? "active" : ""}`}
+                onClick={() => setMinDiscount(option)}
+              >
+                {discountLabels[option]}
+              </button>
+            ))}
+          </div>
+
+          {/* Count */}
           <p
             className="sort-bar-count"
             style={{
-              fontSize: 14,
+              fontSize: 13,
               color: "#9ca3af",
               margin: 0,
-              whiteSpace: "nowrap",
+              textAlign: "center",
             }}
           >
             <span style={{ fontWeight: 600, color: "#7e22ce" }}>
@@ -442,48 +472,6 @@ export default function Home() {
               </span>
             )}
           </p>
-
-          <div
-            style={{
-              display: "flex",
-              gap: 12,
-              alignItems: "center",
-              flexShrink: 0,
-              flexWrap: "wrap",
-              justifyContent: "flex-end",
-            }}
-          >
-            {/* Discount filters */}
-            <div
-              className="filter-row"
-              style={{ display: "flex", gap: 4, alignItems: "center" }}
-            >
-              {(["all", "25", "50"] as DiscountFilter[]).map((option) => (
-                <button
-                  key={option}
-                  className={`filter-option ${minDiscount === option ? "active" : ""}`}
-                  onClick={() => setMinDiscount(option)}
-                >
-                  {discountLabels[option]}
-                </button>
-              ))}
-            </div>
-
-            {/* Sort options */}
-            <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
-              {(["discount", "cheapest", "expensive"] as SortOption[]).map(
-                (option) => (
-                  <button
-                    key={option}
-                    className={`sort-option ${sortBy === option ? "active" : ""}`}
-                    onClick={() => setSortBy(option)}
-                  >
-                    {sortLabels[option]}
-                  </button>
-                )
-              )}
-            </div>
-          </div>
         </div>
       </section>
 

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { execSync } from "child_process";
 
 export const maxDuration = 300;
 export const dynamic = "force-dynamic";
@@ -12,34 +13,25 @@ export async function GET(request: Request) {
   try {
     console.log("🔄 Cron: Updating deal cache...");
 
-    const { scrapeAllStores } = await import("@/lib/scraper");
-    const { writeFileSync, mkdirSync } = await import("fs");
+    execSync("npx tsx scripts/update-cache.ts", {
+      cwd: process.cwd(),
+      stdio: "inherit",
+      timeout: 240_000,
+    });
+
+    // Läs resultatet
+    const { readFileSync } = await import("fs");
     const { join } = await import("path");
+    const cachePath = join(process.cwd(), "public", "cache", "deals.json");
+    const data = JSON.parse(readFileSync(cachePath, "utf-8"));
 
-    const deals = await scrapeAllStores();
-
-    const stores = [...new Set(deals.map((d) => d.store))];
-    const cacheData = {
-      lastUpdated: new Date().toISOString(),
-      totalDeals: deals.length,
-      stores,
-      deals: deals.sort((a, b) => b.discountNum - a.discountNum),
-    };
-
-    const cacheDir = join(process.cwd(), "public", "cache");
-    mkdirSync(cacheDir, { recursive: true });
-    writeFileSync(
-      join(cacheDir, "deals.json"),
-      JSON.stringify(cacheData)
-    );
-
-    console.log(`✅ Cron: Cached ${deals.length} deals`);
+    console.log(`✅ Cron: Cached ${data.totalDeals} deals`);
 
     return NextResponse.json({
       success: true,
-      totalDeals: deals.length,
-      stores,
-      timestamp: cacheData.lastUpdated,
+      totalDeals: data.totalDeals,
+      stores: data.stores,
+      timestamp: data.lastUpdated,
     });
   } catch (error) {
     console.error("❌ Cron error:", error);
