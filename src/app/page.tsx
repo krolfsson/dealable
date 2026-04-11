@@ -14,7 +14,6 @@ const STORE_CONFIG: Record<string, { emoji: string; color: string }> = {
 };
 
 type SortOption = "discount" | "cheapest" | "expensive";
-type DiscountFilter = "all" | "25" | "50";
 
 const PAGE_SIZE = 60;
 
@@ -24,7 +23,6 @@ export default function Home() {
   const [lastUpdated, setLastUpdated] = useState("");
   const [activeStore, setActiveStore] = useState("Alla");
   const [sortBy, setSortBy] = useState<SortOption>("discount");
-  const [minDiscount, setMinDiscount] = useState<DiscountFilter>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -117,15 +115,6 @@ export default function Home() {
       );
     }
 
-    // Filter by min discount
-    if (minDiscount !== "all") {
-      const min = parseInt(minDiscount);
-      result = result.filter((d) => {
-        const disc = parseDiscountValue(d.discount);
-        return disc >= min;
-      });
-    }
-
     // Sort
     const sorted = [...result];
     if (sortBy === "discount") {
@@ -139,7 +128,7 @@ export default function Home() {
     }
 
     return sorted;
-  }, [allDeals, activeStore, debouncedSearch, minDiscount, sortBy]);
+  }, [allDeals, activeStore, debouncedSearch, sortBy]);
 
   const visibleDeals = filteredDeals.slice(0, visibleCount);
   const hasMore = visibleCount < filteredDeals.length;
@@ -147,7 +136,7 @@ export default function Home() {
   // Reset visible count when filters change
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);
-  }, [activeStore, debouncedSearch, minDiscount, sortBy]);
+  }, [activeStore, debouncedSearch, sortBy]);
 
   // Infinite scroll
   useEffect(() => {
@@ -207,11 +196,6 @@ export default function Home() {
     expensive: "Dyrast 💎",
   };
 
-  const discountLabels: Record<DiscountFilter, string> = {
-    all: "Alla 🏷️",
-    "25": ">25% 🔥",
-    "50": ">50% 🤯",
-  };
 
   const pullProgress = Math.min(pullDistance / PULL_THRESHOLD, 1);
   const storeButtons = ["Alla", ...stores];
@@ -456,20 +440,6 @@ export default function Home() {
             )}
           </div>
 
-          <div
-            className="filter-row"
-            style={{ display: "flex", gap: 6, alignItems: "center" }}
-          >
-            {(["all", "25", "50"] as DiscountFilter[]).map((option) => (
-              <button
-                key={option}
-                className={`filter-option ${minDiscount === option ? "active" : ""}`}
-                onClick={() => setMinDiscount(option)}
-              >
-                {discountLabels[option]}
-              </button>
-            ))}
-          </div>
 
           <p
             className="sort-bar-count"
@@ -484,11 +454,7 @@ export default function Home() {
               {filteredDeals.length}
             </span>{" "}
             deals
-            {minDiscount === "25"
-              ? " med >25% rabatt"
-              : minDiscount === "50"
-                ? " med >50% rabatt"
-                : " med minst 20% rabatt"}
+            " med minst 20% rabatt"
             {lastUpdated && (
               <span className="update-badge">
                 {" "}
