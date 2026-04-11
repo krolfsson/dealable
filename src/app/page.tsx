@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import type { Deal } from "@/lib/scraper";
 import { timeAgo, formatPrice, parseDiscountValue } from "@/lib/scraper";
 
@@ -16,8 +16,10 @@ const STORE_CONFIG: Record<string, { emoji: string; color: string }> = {
 type SortOption = "discount" | "cheapest" | "expensive";
 type DiscountFilter = "all" | "25" | "50";
 
+const PAGE_SIZE = 60;
+
 export default function Home() {
-  const [deals, setDeals] = useState<Deal[]>([]);
+  const [allDeals, setAllDeals] = useState<Deal[]>([]);
   const [stores, setStores] = useState<string[]>([]);
   const [lastUpdated, setLastUpdated] = useState("");
   const [activeStore, setActiveStore] = useState("Alla");
@@ -25,12 +27,8 @@ export default function Home() {
   const [minDiscount, setMinDiscount] = useState<DiscountFilter>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [page, setPage] = useState(1);
-  const [totalDeals, setTotalDeals] = useState(0);
-  const [totalPages, setTotalPages] = useState(0);
-  const [hasMore, setHasMore] = useState(true);
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
   // Pull-to-refresh
   const [pullDistance, setPullDistance] = useState(0);
@@ -53,74 +51,94 @@ export default function Home() {
     };
   }, [searchQuery]);
 
-  const loadDeals = useCallback(
-    async (pageNum: number, append: boolean = false) => {
-      try {
-        if (append) {
-          setLoadingMore(true);
-        } else {
-          setLoading(true);
-        }
+  // Load ALL deals once from static file
+  const loadAllDeals = useCallback(async () => {
+    try {
+      setLoading(true);
+      const res = await fetch("/cache/deals.json");
+      if (!res.ok) throw new Error("Kunde inte hämta deals");
+      const data = await res.json();
+      setAllDeals(data.deals || []);
+      setStores(data.stores || []);
+      setLastUpdated(data.lastUpdated || "");
+      setError(null);
+    } catch (err) {
+      console.error("Failed to load deals:", err);
+      setError("Kunde inte ladda deals. Försök igen senare.");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-        const params = new URLSearchParams({
-          page: String(pageNum),
-          limit: "60",
-        });
-
-        if (activeStore !== "Alla") params.set("store", activeStore);
-        if (debouncedSearch.trim()) params.set("q", debouncedSearch.trim());
-        if (minDiscount !== "all") params.set("minDiscount", minDiscount);
-
-        const res = await fetch(`/api/deals?${params}`);
-        if (!res.ok) throw new Error("Kunde inte hämta deals");
-        const data = await res.json();
-
-        if (append) {
-          setDeals((prev) => [...prev, ...data.deals]);
-        } else {
-          setDeals(data.deals);
-        }
-
-        setStores(data.stores);
-        setLastUpdated(data.lastUpdated);
-        setTotalDeals(data.totalDeals);
-        setTotalPages(data.totalPages);
-        setHasMore(pageNum < data.totalPages);
-        setError(null);
-      } catch (err) {
-        console.error("Failed to load deals:", err);
-        setError("Kunde inte ladda deals. Försök igen senare.");
-      } finally {
-        setLoading(false);
-        setLoadingMore(false);
-      }
-    },
-    [activeStore, debouncedSearch, minDiscount]
-  );
-
-  // Återställ och ladda om när butik/sökning/filter ändras
   useEffect(() => {
-    setPage(1);
-    setDeals([]);
-    loadDeals(1, false);
-  }, [loadDeals]);
+    loadAllDeals();
+  }, [loadAllDeals]);
+
+  // Client-side filter + sort (all computed from allDeals)
+  const filteredDeals = useMemo(() => {
+    let result = allDeals;
+
+    // Filter by store
+    if (activeStore !== "Alla") {
+      result = result.filter((d) => d.store === activeStore);
+    }
+
+    // Filter by search
+    if (debouncedSearch.trim()) {
+      const q = debouncedSearch.toLowerCase();
+      result = result.filter(
+        (d) =>
+          d.title.toLowerCase().includes(q) ||
+          d.store.toLowerCase().includes(q) ||
+          (d.brand && d.brand.toLowerCase().includes(q))
+      );
+    }
+
+    // Filter by min discount
+    if (minDiscount !== "all") {
+      const min = parseInt(minDiscount);
+      result = result.filter((d) => {
+        const disc = parseDiscountValue(d.discount);
+        return disc >= min;
+      });
+    }
+
+    // Sort
+    const sorted = [...result];
+    if (sortBy === "discount") {
+      sorted.sort(
+        (a, b) => parseDiscountValue(b.discount) - parseDiscountValue(a.discount)
+      );
+    } else if (sortBy === "cheapest") {
+      sorted.sort((a, b) => a.price - b.price);
+    } else if (sortBy === "expensive") {
+      sorted.sort((a, b) => b.price - a.price);
+    }
+
+    return sorted;
+  }, [allDeals, activeStore, debouncedSearch, minDiscount, sortBy]);
+
+  const visibleDeals = filteredDeals.slice(0, visibleCount);
+  const hasMore = visibleCount < filteredDeals.length;
+
+  // Reset visible count when filters change
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE);
+  }, [activeStore, debouncedSearch, minDiscount, sortBy]);
 
   // Infinite scroll
   useEffect(() => {
     const handleScroll = () => {
-      if (loadingMore || !hasMore) return;
+      if (!hasMore) return;
       const scrollBottom =
         window.innerHeight + window.scrollY >= document.body.offsetHeight - 800;
       if (scrollBottom) {
-        const nextPage = page + 1;
-        setPage(nextPage);
-        loadDeals(nextPage, true);
+        setVisibleCount((prev) => prev + PAGE_SIZE);
       }
     };
-
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [page, loadingMore, hasMore, loadDeals]);
+  }, [hasMore]);
 
   // Pull-to-refresh
   useEffect(() => {
@@ -144,35 +162,21 @@ export default function Home() {
       if (pullDistance >= PULL_THRESHOLD) {
         setRefreshing(true);
         setPullDistance(PULL_THRESHOLD);
-        setPage(1);
-        await loadDeals(1, false);
+        await loadAllDeals();
         setRefreshing(false);
       }
       setPullDistance(0);
     };
 
-    document.addEventListener("touchstart", handleTouchStart, {
-      passive: true,
-    });
-    document.addEventListener("touchmove", handleTouchMove, {
-      passive: false,
-    });
+    document.addEventListener("touchstart", handleTouchStart, { passive: true });
+    document.addEventListener("touchmove", handleTouchMove, { passive: false });
     document.addEventListener("touchend", handleTouchEnd, { passive: true });
     return () => {
       document.removeEventListener("touchstart", handleTouchStart);
       document.removeEventListener("touchmove", handleTouchMove);
       document.removeEventListener("touchend", handleTouchEnd);
     };
-  }, [pullDistance, refreshing, loadDeals]);
-
-  // Client-side sort
-  const sorted = [...deals].sort((a, b) => {
-    if (sortBy === "discount")
-      return parseDiscountValue(b.discount) - parseDiscountValue(a.discount);
-    if (sortBy === "cheapest") return a.price - b.price;
-    if (sortBy === "expensive") return b.price - a.price;
-    return 0;
-  });
+  }, [pullDistance, refreshing, loadAllDeals]);
 
   const sortLabels: Record<SortOption, string> = {
     discount: "Rabatt 💸",
@@ -403,7 +407,7 @@ export default function Home() {
         </div>
       </header>
 
-       {/* Sort & filter bar */}
+      {/* Sort & filter bar */}
       <section
         style={{ maxWidth: 1100, margin: "0 auto", padding: "20px 20px 8px" }}
       >
@@ -415,7 +419,6 @@ export default function Home() {
             gap: 10,
           }}
         >
-          {/* Sort options */}
           <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
             {(["discount", "cheapest", "expensive"] as SortOption[]).map(
               (option) => (
@@ -430,7 +433,6 @@ export default function Home() {
             )}
           </div>
 
-          {/* Discount filters */}
           <div
             className="filter-row"
             style={{ display: "flex", gap: 6, alignItems: "center" }}
@@ -446,7 +448,6 @@ export default function Home() {
             ))}
           </div>
 
-          {/* Count */}
           <p
             className="sort-bar-count"
             style={{
@@ -457,7 +458,7 @@ export default function Home() {
             }}
           >
             <span style={{ fontWeight: 600, color: "#7e22ce" }}>
-              {totalDeals}
+              {filteredDeals.length}
             </span>{" "}
             deals
             {minDiscount === "25"
@@ -480,7 +481,7 @@ export default function Home() {
         style={{ maxWidth: 1100, margin: "0 auto", padding: "12px 20px 80px" }}
       >
         <div className="deal-grid">
-          {sorted.map((deal) => {
+          {visibleDeals.map((deal) => {
             const storeConfig = STORE_CONFIG[deal.store] || {
               emoji: "🏪",
               color: "#a855f7",
@@ -653,20 +654,20 @@ export default function Home() {
           })}
         </div>
 
-        {/* Loading more */}
-        {loadingMore && (
+        {/* Loading more indicator */}
+        {hasMore && (
           <div className="load-more-spinner">
             <div className="load-more-dot" />
             <div className="load-more-dot" />
             <div className="load-more-dot" />
             <span style={{ fontSize: 13, marginLeft: 4 }}>
-              Laddar fler deals...
+              Scrolla för fler deals...
             </span>
           </div>
         )}
 
         {/* All loaded */}
-        {!hasMore && deals.length > 0 && (
+        {!hasMore && allDeals.length > 0 && visibleDeals.length > 0 && (
           <p
             style={{
               textAlign: "center",
@@ -675,12 +676,12 @@ export default function Home() {
               fontSize: 13,
             }}
           >
-            ✨ Du har sett alla {totalDeals} deals!
+            ✨ Du har sett alla {filteredDeals.length} deals!
           </p>
         )}
 
         {/* Empty state */}
-        {!loading && sorted.length === 0 && (
+        {!loading && filteredDeals.length === 0 && allDeals.length > 0 && (
           <div
             style={{
               textAlign: "center",
@@ -699,7 +700,7 @@ export default function Home() {
         )}
 
         {/* Initial loading */}
-        {loading && deals.length === 0 && (
+        {loading && (
           <div
             style={{
               textAlign: "center",
