@@ -198,12 +198,7 @@ export default function Home() {
 
 
   const pullProgress = Math.min(pullDistance / PULL_THRESHOLD, 1);
-  const storeConfigOrder = Object.keys(STORE_CONFIG);
-  const storeButtons = ["Alla", ...stores.sort((a, b) => {
-    const ai = storeConfigOrder.indexOf(a);
-    const bi = storeConfigOrder.indexOf(b);
-    return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi);
-  })];
+  const storeButtons = ["Alla", ...stores.slice().sort((a, b) => a.localeCompare(b, "sv"))];
 
   return (
     <div style={{ minHeight: "100vh", background: "#faf8ff" }}>
