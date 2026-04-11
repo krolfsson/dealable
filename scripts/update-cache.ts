@@ -1,13 +1,14 @@
 // scripts/update-cache.ts
 import { parse } from "csv-parse/sync";
 import { gunzipSync } from "zlib";
-import { writeFileSync, mkdirSync } from "fs";
+import { writeFileSync, mkdirSync, readdirSync, unlinkSync } from "fs";
 import { join } from "path";
 
 const FEED_URL =
   "https://productdata.awin.com/datafeed/download/apikey/e1f765d6091f3fe2034630528473dd09/language/sv/fid/98177,66049,66051,85876/columns/aw_deep_link,product_name,aw_product_id,merchant_image_url,merchant_category,search_price,merchant_name,display_price,rrp_price,savings_percent,product_price_old,brand_name,aw_image_url,large_image,in_stock,last_updated,merchant_product_category_path,currency,colour,product_short_description/format/csv/delimiter/%2C/compression/gzip/adultcontent/1/";
 
 const MIN_DISCOUNT = 20;
+const CHUNK_SIZE = 2000;
 
 function parsePrice(value: string | undefined): number {
   if (!value) return 0;
@@ -79,19 +80,8 @@ async function main() {
   const buffer = Buffer.from(await res.arrayBuffer());
   console.log(`📦 Downloaded ${(buffer.length / 1024 / 1024).toFixed(1)} MB`);
 
-  let csvText: string;
-  try {
-    csvText = gunzipSync(buffer).toString("utf-8");
-  } catch {
-    csvText = buffer.toString("utf-8");
-  }
-
-  const records = parse(csvText, {
-    columns: true,
-    skip_empty_lines: true,
-    relax_column_count: true,
-  });
-
+  const csv = gunzipSync(buffer).toString("utf-8");
+  const records = parse(csv, { columns: true, skip_empty_lines: true, relax_column_count: true });
   console.log(`📊 Parsed ${records.length} rows`);
 
   const deals = records
@@ -145,22 +135,40 @@ async function main() {
 
   const stores = Array.from(new Set(deals.map((d: any) => d.store))).sort();
 
-  const output = {
+  // Spara till public/cache som chunks
+  const cacheDir = join(process.cwd(), "public", "cache");
+  mkdirSync(cacheDir, { recursive: true });
+
+  // Rensa gamla filer
+  try {
+    const existing = readdirSync(cacheDir);
+    for (const f of existing) {
+      unlinkSync(join(cacheDir, f));
+    }
+  } catch {}
+
+  // Dela upp i chunks
+  const totalChunks = Math.ceil(deals.length / CHUNK_SIZE);
+  for (let i = 0; i < totalChunks; i++) {
+    const chunk = deals.slice(i * CHUNK_SIZE, (i + 1) * CHUNK_SIZE);
+    const chunkPath = join(cacheDir, `deals-${i}.json`);
+    writeFileSync(chunkPath, JSON.stringify(chunk));
+    const size = (Buffer.byteLength(JSON.stringify(chunk)) / 1024).toFixed(0);
+    console.log(`   📄 deals-${i}.json: ${chunk.length} deals (${size} KB)`);
+  }
+
+  // Meta-fil (liten, laddas först)
+  const meta = {
     lastUpdated: new Date().toISOString(),
     totalDeals: deals.length,
     stores,
-    deals,
+    totalChunks,
+    chunkSize: CHUNK_SIZE,
   };
-
-  // Spara till public/cache
-  const cacheDir = join(process.cwd(), "public", "cache");
-  mkdirSync(cacheDir, { recursive: true });
-  const cachePath = join(cacheDir, "deals.json");
-  writeFileSync(cachePath, JSON.stringify(output));
+  writeFileSync(join(cacheDir, "deals-meta.json"), JSON.stringify(meta));
 
   const elapsed = ((Date.now() - start) / 1000).toFixed(1);
-  const fileSize = (Buffer.byteLength(JSON.stringify(output)) / 1024 / 1024).toFixed(1);
-  console.log(`✅ ${deals.length} deals saved to public/cache/deals.json (${fileSize} MB) in ${elapsed}s`);
+  console.log(`\n✅ ${deals.length} deals saved in ${totalChunks} chunks in ${elapsed}s`);
 
   // Stats per butik
   const storeStats: Record<string, number> = {};

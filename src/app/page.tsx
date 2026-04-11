@@ -51,21 +51,43 @@ export default function Home() {
     };
   }, [searchQuery]);
 
-  // Load ALL deals once from static file
+  // Load deals in chunks: meta + first chunk fast, rest in background
   const loadAllDeals = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await fetch("/cache/deals.json");
-      if (!res.ok) throw new Error("Kunde inte hämta deals");
-      const data = await res.json();
-      setAllDeals(data.deals || []);
-      setStores(data.stores || []);
-      setLastUpdated(data.lastUpdated || "");
+
+      // 1. Load meta (tiny file)
+      const metaRes = await fetch("/cache/deals-meta.json");
+      if (!metaRes.ok) throw new Error("Kunde inte hämta deals");
+      const meta = await metaRes.json();
+      setStores(meta.stores || []);
+      setLastUpdated(meta.lastUpdated || "");
+
+      // 2. Load first chunk (fast, ~1 MB)
+      const firstRes = await fetch("/cache/deals-0.json");
+      if (!firstRes.ok) throw new Error("Kunde inte hämta deals");
+      const firstChunk = await firstRes.json();
+      setAllDeals(firstChunk);
       setError(null);
+      setLoading(false);
+
+      // 3. Load remaining chunks in background
+      if (meta.totalChunks > 1) {
+        const remaining: any[] = [];
+        const fetches = [];
+        for (let i = 1; i < meta.totalChunks; i++) {
+          fetches.push(
+            fetch(`/cache/deals-${i}.json`)
+              .then(r => r.json())
+              .then(chunk => { remaining.push(...chunk); })
+          );
+        }
+        await Promise.all(fetches);
+        setAllDeals(prev => [...prev, ...remaining]);
+      }
     } catch (err) {
       console.error("Failed to load deals:", err);
       setError("Kunde inte ladda deals. Försök igen senare.");
-    } finally {
       setLoading(false);
     }
   }, []);
