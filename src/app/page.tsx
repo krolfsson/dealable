@@ -112,7 +112,10 @@ export default function Home() {
         (d) =>
           d.title.toLowerCase().includes(q) ||
           d.store.toLowerCase().includes(q) ||
-          (d.brand && d.brand.toLowerCase().includes(q))
+          (d.brand && d.brand.toLowerCase().includes(q)) ||
+          d.category.toLowerCase().includes(q) ||
+          (d.description && d.description.toLowerCase().includes(q)) ||
+          (d.colour && d.colour.toLowerCase().includes(q))
       );
     }
 
