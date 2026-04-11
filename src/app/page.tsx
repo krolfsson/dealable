@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import type { Deal } from "@/lib/scraper";
-import { timeAgo, formatPrice, parseDiscountValue } from "@/lib/scraper";
+import { timeAgo, formatPrice, parseDiscountValue, getHiResImage } from "@/lib/scraper";
 
 const STORE_CONFIG: Record<string, { emoji: string; color: string }> = {
   Alla: { emoji: "✨", color: "#a855f7" },
@@ -504,11 +504,11 @@ export default function Home() {
                     <div className="card-image-spacer" />
                     {deal.image ? (
                       <Image
-                        src={deal.image}
+                        src={getHiResImage(deal.image)}
                         alt={deal.title}
                         fill
-                        sizes="(max-width: 640px) 50vw, 300px"
-                        quality={85}
+                        sizes="(max-width: 640px) 45vw, 280px"
+                        quality={75}
                         style={{ objectFit: "cover" }}
                       />
                     ) : (

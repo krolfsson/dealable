@@ -53,3 +53,12 @@ export function parseDiscountValue(discount: string): number {
   const num = parseInt(discount.replace(/[^0-9]/g, ""));
   return isNaN(num) ? 0 : num;
 }
+/**
+ * Upgrade Productserve image URLs to higher resolution
+ */
+export function getHiResImage(url: string, w = 640, h = 640): string {
+  if (!url || !url.includes("productserve.com")) return url;
+  return url
+    .replace(/([?&])w=\d+/, `$1w=${w}`)
+    .replace(/([?&])h=\d+/, `$1h=${h}`);
+}
