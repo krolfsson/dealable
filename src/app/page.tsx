@@ -234,7 +234,7 @@ export default function Home() {
         .deal-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
         .deal-link { text-decoration: none; color: inherit; display: block; min-width: 0; overflow: hidden; }
         .deal-card { flex-direction: row; }
-        .deal-card .card-image { width: 120px; min-width: 120px; min-height: 120px; padding: 16px; background: #ffffff; }
+        .deal-card .card-image { width: 160px; min-width: 160px; min-height: 160px; padding: 0; background: #ffffff; }
         .deal-card .card-info { padding: 16px; }
         .deal-card .card-brand { font-size: 11px; }
         .deal-card .card-title { font-size: 15px; }
@@ -277,8 +277,8 @@ export default function Home() {
         @media (max-width: 640px) {
           .deal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
           .deal-card { flex-direction: column !important; }
-          .deal-card .card-image { width: 100% !important; min-width: 0 !important; min-height: 0 !important; height: auto !important; padding: 8px !important; }
-          .card-image-spacer { display: block !important; width: 100%; padding-bottom: 65%; }
+          .deal-card .card-image { width: 100% !important; min-width: 0 !important; min-height: 0 !important; height: auto !important; padding: 0 !important; }
+          .card-image-spacer { display: block !important; width: 100%; padding-bottom: 100%; }
           .deal-card .card-info { padding: 8px 10px 10px; }
           .deal-card .card-brand { font-size: 9px; }
           .deal-card .card-title { font-size: 12px; }
@@ -506,7 +506,7 @@ export default function Home() {
                         alt={deal.title}
                         fill
                         sizes="(max-width: 640px) 50vw, 140px"
-                        style={{ objectFit: "contain" }}
+                        style={{ objectFit: "cover" }}
                       />
                     ) : (
                       <div
