@@ -276,18 +276,18 @@ export default function Home() {
         @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
         @media (max-width: 640px) {
           .deal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-          .deal-card { flex-direction: row !important; }
-          .deal-card .card-image { width: 100px !important; min-width: 100px !important; min-height: 100px !important; height: auto !important; padding: 0 !important; }
-          .card-image-spacer { display: none !important; }
-          .deal-card .card-info { padding: 8px 10px; }
-          .deal-card .card-brand { font-size: 9px; }
-          .deal-card .card-title { font-size: 11px; white-space: normal !important; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
-          .deal-card .card-price { font-size: 13px; }
-          .deal-card .card-original { font-size: 10px; }
-          .deal-card .card-time { font-size: 9px; }
-          .deal-card .card-badge { font-size: 9px; padding: 2px 5px; }
-          .card-store { font-size: 8px !important; }
-          .mobile-price-wrap { flex-direction: column !important; gap: 0 !important; }
+          .deal-card { flex-direction: column !important; border-radius: 12px !important; }
+          .deal-card .card-image { width: 100% !important; min-width: 0 !important; min-height: 0 !important; height: auto !important; padding: 0 !important; aspect-ratio: 3/4; }
+          .card-image-spacer { display: block !important; width: 100%; padding-bottom: 133%; }
+          .deal-card .card-info { padding: 10px 10px 12px; }
+          .deal-card .card-brand { font-size: 10px; }
+          .deal-card .card-title { font-size: 13px; white-space: nowrap !important; overflow: hidden; text-overflow: ellipsis; }
+          .deal-card .card-price { font-size: 15px; }
+          .deal-card .card-original { font-size: 11px; }
+          .deal-card .card-time { font-size: 10px; }
+          .deal-card .card-badge { font-size: 10px; padding: 3px 7px; }
+          .card-store { font-size: 9px !important; }
+          .mobile-price-wrap { flex-direction: row !important; flex-wrap: wrap; align-items: baseline; gap: 5px !important; }
           .mobile-nav-title { font-size: 17px !important; }
           .mobile-search { font-size: 12px !important; padding: 6px 12px !important; }
           .store-btn { font-size: 12px !important; padding: 8px 12px !important; }
