@@ -507,7 +507,8 @@ export default function Home() {
                         src={deal.image}
                         alt={deal.title}
                         fill
-                        sizes="(max-width: 640px) 50vw, 140px"
+                        sizes="(max-width: 640px) 50vw, 300px"
+                        quality={85}
                         style={{ objectFit: "cover" }}
                       />
                     ) : (
