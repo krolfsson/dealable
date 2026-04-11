@@ -453,13 +453,12 @@ export default function Home() {
             <span style={{ fontWeight: 600, color: "#7e22ce" }}>
               {filteredDeals.length}
             </span>{" "}
-            deals
-            " med minst 20% rabatt"
+            deals hittades
             {lastUpdated && (
-              <span className="update-badge">
-                {" "}
-                <span className="update-dot" /> {timeAgo(lastUpdated)} sedan
-              </span>
+              <>
+                {" · "}
+                <span className="update-dot" /> uppdaterad {timeAgo(lastUpdated)} sedan
+              </>
             )}
           </p>
         </div>
