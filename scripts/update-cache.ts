@@ -127,13 +127,23 @@ async function main() {
     })
     .filter(Boolean);
 
+  // Ta bort dubletter (samma titel + butik, behåll bästa rabatten)
+  const seen = new Map<string, boolean>();
+  const uniqueDeals = deals.filter((d: any) => {
+    const key = (d.title + "||" + d.store).toLowerCase().trim();
+    if (seen.has(key)) return false;
+    seen.set(key, true);
+    return true;
+  });
+  console.log(`🧹 Removed ${deals.length - uniqueDeals.length} duplicates (${uniqueDeals.length} unique)`);
+
   // Sortera: störst rabatt först
-  deals.sort((a: any, b: any) => {
+  uniqueDeals.sort((a: any, b: any) => {
     if (b.discountNum !== a.discountNum) return b.discountNum - a.discountNum;
     return a.price - b.price;
   });
 
-  const stores = Array.from(new Set(deals.map((d: any) => d.store))).sort();
+  const stores = Array.from(new Set(uniqueDeals.map((d: any) => d.store))).sort();
 
   // Spara till public/cache som chunks
   const cacheDir = join(process.cwd(), "public", "cache");
@@ -148,9 +158,9 @@ async function main() {
   } catch {}
 
   // Dela upp i chunks
-  const totalChunks = Math.ceil(deals.length / CHUNK_SIZE);
+  const totalChunks = Math.ceil(uniqueDeals.length / CHUNK_SIZE);
   for (let i = 0; i < totalChunks; i++) {
-    const chunk = deals.slice(i * CHUNK_SIZE, (i + 1) * CHUNK_SIZE);
+    const chunk = uniqueDeals.slice(i * CHUNK_SIZE, (i + 1) * CHUNK_SIZE);
     const chunkPath = join(cacheDir, `deals-${i}.json`);
     writeFileSync(chunkPath, JSON.stringify(chunk));
     const size = (Buffer.byteLength(JSON.stringify(chunk)) / 1024).toFixed(0);
@@ -160,7 +170,7 @@ async function main() {
   // Meta-fil (liten, laddas först)
   const meta = {
     lastUpdated: new Date().toISOString(),
-    totalDeals: deals.length,
+    totalDeals: uniqueDeals.length,
     stores,
     totalChunks,
     chunkSize: CHUNK_SIZE,
@@ -168,11 +178,11 @@ async function main() {
   writeFileSync(join(cacheDir, "deals-meta.json"), JSON.stringify(meta));
 
   const elapsed = ((Date.now() - start) / 1000).toFixed(1);
-  console.log(`\n✅ ${deals.length} deals saved in ${totalChunks} chunks in ${elapsed}s`);
+  console.log(`\n✅ ${uniqueDeals.length} deals saved in ${totalChunks} chunks in ${elapsed}s`);
 
   // Stats per butik
   const storeStats: Record<string, number> = {};
-  deals.forEach((d: any) => { storeStats[d.store] = (storeStats[d.store] || 0) + 1; });
+  uniqueDeals.forEach((d: any) => { storeStats[d.store] = (storeStats[d.store] || 0) + 1; });
   console.log("📊 Per butik:");
   Object.entries(storeStats).sort((a, b) => b[1] - a[1]).forEach(([s, c]) => {
     console.log(`   ${s}: ${c} deals`);
