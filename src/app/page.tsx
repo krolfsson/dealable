@@ -275,7 +275,7 @@ export default function Home() {
         .load-more-dot:nth-child(3) { animation-delay: 0.4s; }
         @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
         @media (max-width: 640px) {
-          .deal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+          .deal-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
           .deal-card { flex-direction: column !important; }
           .deal-card .card-image { width: 100% !important; min-width: 0 !important; min-height: 0 !important; height: auto !important; padding: 0 !important; }
           .card-image-spacer { display: block !important; width: 100%; padding-bottom: 100%; }
