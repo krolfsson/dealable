@@ -275,17 +275,19 @@ export default function Home() {
         .load-more-dot:nth-child(3) { animation-delay: 0.4s; }
         @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
         @media (max-width: 640px) {
-          .deal-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
-          .deal-card { flex-direction: column !important; }
-          .deal-card .card-image { width: 100% !important; min-width: 0 !important; min-height: 0 !important; height: auto !important; padding: 0 !important; }
-          .card-image-spacer { display: block !important; width: 100%; padding-bottom: 100%; }
-          .deal-card .card-info { padding: 8px 10px 10px; }
+          .deal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+          .deal-card { flex-direction: row !important; }
+          .deal-card .card-image { width: 100px !important; min-width: 100px !important; min-height: 100px !important; height: auto !important; padding: 0 !important; }
+          .card-image-spacer { display: none !important; }
+          .deal-card .card-info { padding: 8px 10px; }
           .deal-card .card-brand { font-size: 9px; }
-          .deal-card .card-title { font-size: 12px; }
+          .deal-card .card-title { font-size: 11px; white-space: normal !important; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
           .deal-card .card-price { font-size: 13px; }
           .deal-card .card-original { font-size: 10px; }
-          .deal-card .card-time { font-size: 10px; }
+          .deal-card .card-time { font-size: 9px; }
           .deal-card .card-badge { font-size: 9px; padding: 2px 5px; }
+          .card-store { font-size: 8px !important; }
+          .mobile-price-wrap { flex-direction: column !important; gap: 0 !important; }
           .mobile-nav-title { font-size: 17px !important; }
           .mobile-search { font-size: 12px !important; padding: 6px 12px !important; }
           .store-btn { font-size: 12px !important; padding: 8px 12px !important; }
@@ -591,6 +593,7 @@ export default function Home() {
                     </h3>
                     {(deal.price > 0 || deal.originalPrice > 0) && (
                       <div
+                        className="mobile-price-wrap"
                         style={{
                           marginTop: 8,
                           display: "flex",
