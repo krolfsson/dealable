@@ -1,5 +1,5 @@
 import DealsPage from "@/app/components/DealsPage";
-import { SLUG_TO_STORE, STORE_SLUGS, formatStoreName } from "@/lib/seo";
+import { SLUG_TO_STORE, formatStoreName } from "@/lib/seo";
 import type { Metadata } from "next";
 
 export async function generateMetadata({
@@ -13,8 +13,8 @@ export async function generateMetadata({
 
   const title = `${label} rea & deals`;
   const description = storeName
-    ? `Se de bästa dealsen hos ${label}. Filtrera på underkategorier och hitta rätt produkt snabbt. Uppdateras löpande.`
-    : `Se deals hos ${label}. Filtrera och hitta rätt produkt snabbt.`;
+    ? `Se de bästa dealsen från ${label}. Filtrera på underkategorier och hitta rätt produkt snabbt. Uppdateras löpande.`
+    : `Se deals från ${label}. Filtrera och hitta rätt produkt snabbt.`;
 
   return {
     title,
@@ -42,8 +42,8 @@ export default async function StorePage({
   const label = storeName ? formatStoreName(storeName) : storeSlug;
   const seoTitle = `${label} rea & deals`;
   const seoDescription = storeName
-    ? `Se de bästa dealsen hos ${label}. Filtrera på underkategorier för att hitta rätt produkt snabbt.`
-    : `Se deals hos ${label}.`;
+    ? `Se de bästa dealsen från ${label}. Filtrera på underkategorier för att hitta rätt produkt snabbt.`
+    : `Se deals från ${label}.`;
 
   return (
     <DealsPage

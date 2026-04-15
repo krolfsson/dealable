@@ -308,12 +308,14 @@ export default function DealsPage({
 
   const activeStoreLabel =
     activeStore === "Alla" ? "Alla butiker" : formatStoreName(activeStore);
-  const h1 = seoTitle || `Deals hos ${activeStoreLabel}`;
+  const h1 =
+    seoTitle ||
+    (activeStore === "Alla" ? "Deals från alla butiker" : `Deals från ${activeStoreLabel}`);
   const desc =
     seoDescription ||
     (activeStore === "Alla"
       ? "Hitta de bästa erbjudandena från svenska butiker. Filtrera på butik, kategori och sortera efter rabatt eller pris."
-      : `Se de bästa dealsen hos ${activeStoreLabel}. Filtrera på underkategorier för att hitta rätt produkt snabbt.`);
+      : `Se de bästa dealsen från ${activeStoreLabel}. Filtrera på underkategorier för att hitta rätt produkt snabbt.`);
 
   return (
     <div style={{ minHeight: "100vh", background: "#faf8ff" }}>

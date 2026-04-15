@@ -52,7 +52,7 @@ export async function generateMetadata({
   const catLabel = titleCaseSv(unslugCategory(categorySlug));
 
   const title = `${catLabel} – ${storeLabel} rea & deals`;
-  const description = `Se deals inom ${catLabel} hos ${storeLabel}. Filtrera och hitta rätt produkt snabbt. Uppdateras löpande.`;
+  const description = `Se deals inom ${catLabel} från ${storeLabel}. Filtrera och hitta rätt produkt snabbt. Uppdateras löpande.`;
 
   return {
     title,
@@ -87,7 +87,7 @@ export default async function StoreCategoryPage({
       initialStore={initialStore}
       initialCategory={initialCategory}
       seoTitle={`${catLabel} – ${storeLabel} rea & deals`}
-      seoDescription={`Se deals inom ${catLabel} hos ${storeLabel}. Filtrera och hitta rätt produkt snabbt.`}
+      seoDescription={`Se deals inom ${catLabel} från ${storeLabel}. Filtrera och hitta rätt produkt snabbt.`}
     />
   );
 }
