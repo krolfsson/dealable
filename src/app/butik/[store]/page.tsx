@@ -19,11 +19,11 @@ export async function generateMetadata({
   return {
     title,
     description,
-    alternates: { canonical: `https://dealable.se/butik/${storeSlug}` },
+    alternates: { canonical: `https://www.dealable.se/butik/${storeSlug}` },
     openGraph: {
       title,
       description,
-      url: `https://dealable.se/butik/${storeSlug}`,
+      url: `https://www.dealable.se/butik/${storeSlug}`,
     },
   };
 }

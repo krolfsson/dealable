@@ -4,7 +4,7 @@ import { join } from "path";
 import { STORE_SLUGS, slugifyCategory } from "@/lib/seo";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const base = "https://dealable.se";
+  const base = "https://www.dealable.se";
   const now = new Date();
 
   const out: MetadataRoute.Sitemap = [

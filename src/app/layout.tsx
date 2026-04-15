@@ -14,12 +14,12 @@ export const metadata: Metadata = {
     "deals", "erbjudanden", "rabatter", "rea", "kampanjer",
     "svenska butiker", "online shopping", "prisvärt", "billigt",
   ],
-  metadataBase: new URL("https://dealable.se"),
+  metadataBase: new URL("https://www.dealable.se"),
   openGraph: {
     title: "Dealable.se – Alla bästa deals från svenska butiker",
     description:
       "Hitta de bästa erbjudandena och rabatterna från svenska nätbutiker. Uppdateras varannan timme.",
-    url: "https://dealable.se",
+    url: "https://www.dealable.se",
     siteName: "Dealable",
     locale: "sv_SE",
     type: "website",
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     follow: true,
   },
   alternates: {
-    canonical: "https://dealable.se",
+    canonical: "https://www.dealable.se",
   },
 };
 
