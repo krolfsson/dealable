@@ -1,11 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import type { Deal } from "@/lib/scraper";
 import { timeAgo, formatPrice, parseDiscountValue, getHiResImage } from "@/lib/scraper";
-import { KNOWN_STORES, STORE_SLUGS, formatStoreName, slugifyCategory } from "@/lib/seo";
+import { KNOWN_STORES, formatStoreName } from "@/lib/seo";
 
 const STORE_CONFIG: Record<string, { emoji: string; color: string }> = {
   Alla: { emoji: "✨", color: "#a855f7" },
@@ -130,21 +129,6 @@ export default function DealsPage({
       .sort((a, b) => a[0].localeCompare(b[0], "sv"))
       .map(([category, count]) => ({ category, count }));
   }, [activeStore, allDeals]);
-
-  const topCategoryLinks = useMemo(() => {
-    if (activeStore === "Alla") return [];
-    const slug = STORE_SLUGS[activeStore];
-    if (!slug) return [];
-    return storeCategories
-      .slice()
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 6)
-      .map(({ category, count }) => ({
-        category,
-        count,
-        href: `/butik/${slug}/${slugifyCategory(category)}`,
-      }));
-  }, [activeStore, storeCategories]);
 
   // Client-side filter + sort
   const filteredDeals = useMemo(() => {
@@ -397,13 +381,12 @@ export default function DealsPage({
               justifyContent: "space-between",
             }}
           >
-            <Link
-              href="/"
+            <span
               className="logo-text mobile-nav-title"
-              style={{ fontSize: 22, letterSpacing: "-0.5px", textDecoration: "none" }}
+              style={{ fontSize: 22, letterSpacing: "-0.5px" }}
             >
               dealable
-            </Link>
+            </span>
             <div style={{ flex: 1, maxWidth: 400, margin: "0 24px" }}>
               <input
                 type="text"
@@ -532,29 +515,6 @@ export default function DealsPage({
         <p style={{ margin: "6px 0 0", color: "#6b7280", fontSize: 14, maxWidth: 860 }}>
           {desc}
         </p>
-
-        {activeStore !== "Alla" && topCategoryLinks.length > 0 && (
-          <div style={{ marginTop: 10, display: "flex", flexWrap: "wrap", gap: 8 }}>
-            {topCategoryLinks.map((c) => (
-              <Link
-                key={c.href}
-                href={c.href}
-                style={{
-                  textDecoration: "none",
-                  color: "#7e22ce",
-                  background: "#f3e8ff",
-                  border: "1px solid #e9d5ff",
-                  padding: "6px 10px",
-                  borderRadius: 999,
-                  fontSize: 13,
-                  fontWeight: 700,
-                }}
-              >
-                {c.category} ({c.count})
-              </Link>
-            ))}
-          </div>
-        )}
       </section>
 
       <section style={{ maxWidth: 1100, margin: "0 auto", padding: "8px 20px 8px" }}>
