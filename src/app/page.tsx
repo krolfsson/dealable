@@ -37,6 +37,7 @@ export default function Home() {
   const [stores, setStores] = useState<string[]>([]);
   const [lastUpdated, setLastUpdated] = useState("");
   const [activeStore, setActiveStore] = useState("Alla");
+  const [activeCategory, setActiveCategory] = useState("Alla");
   const [sortBy, setSortBy] = useState<SortOption>("discount");
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
@@ -113,6 +114,21 @@ export default function Home() {
     loadAllDeals();
   }, [loadAllDeals]);
 
+  // Categories for the active store (dynamic, based on available deals)
+  const storeCategories = useMemo(() => {
+    if (activeStore === "Alla") return [];
+    const counts = new Map<string, number>();
+    for (const d of allDeals) {
+      if (d.store !== activeStore) continue;
+      const cat = (d.category || "").trim();
+      if (!cat) continue;
+      counts.set(cat, (counts.get(cat) || 0) + 1);
+    }
+    return Array.from(counts.entries())
+      .sort((a, b) => a[0].localeCompare(b[0], "sv"))
+      .map(([category, count]) => ({ category, count }));
+  }, [activeStore, allDeals]);
+
   // Client-side filter + sort (all computed from allDeals)
   const filteredDeals = useMemo(() => {
     let result = allDeals;
@@ -120,6 +136,11 @@ export default function Home() {
     // Filter by store
     if (activeStore !== "Alla") {
       result = result.filter((d) => d.store === activeStore);
+    }
+
+    // Filter by category (only meaningful when store is selected)
+    if (activeStore !== "Alla" && activeCategory !== "Alla") {
+      result = result.filter((d) => d.category === activeCategory);
     }
 
     // Filter by search
@@ -147,7 +168,7 @@ export default function Home() {
     }
 
     return sorted;
-  }, [allDeals, activeStore, debouncedSearch, sortBy]);
+  }, [allDeals, activeStore, activeCategory, debouncedSearch, sortBy]);
 
   const visibleDeals = filteredDeals.slice(0, visibleCount);
   const hasMore = visibleCount < filteredDeals.length;
@@ -155,7 +176,12 @@ export default function Home() {
   // Reset visible count when filters change
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);
-  }, [activeStore, debouncedSearch, sortBy]);
+  }, [activeStore, activeCategory, debouncedSearch, sortBy]);
+
+  // Reset category when store changes
+  useEffect(() => {
+    setActiveCategory("Alla");
+  }, [activeStore]);
 
   // Infinite scroll
   useEffect(() => {
@@ -433,6 +459,60 @@ export default function Home() {
             })}
           </div>
         </div>
+
+        {/* Category buttons (only when a store is selected) */}
+        {activeStore !== "Alla" && storeCategories.length > 0 && (
+          <div style={{ borderBottom: "1px solid #ede9fe" }}>
+            <div
+              className="store-scroll"
+              style={{
+                maxWidth: 1100,
+                margin: "0 auto",
+                padding: "10px 20px",
+                display: "flex",
+                gap: 8,
+                overflowX: "auto",
+                flexWrap: "nowrap",
+                alignItems: "center",
+              }}
+            >
+              {["Alla", ...storeCategories.map((c) => c.category)].map((cat) => {
+                const isActive = activeCategory === cat;
+                return (
+                  <button
+                    key={cat}
+                    className={`filter-option ${isActive ? "active" : ""}`}
+                    onClick={() => setActiveCategory(cat)}
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 6,
+                      whiteSpace: "nowrap",
+                    }}
+                    title={
+                      cat === "Alla"
+                        ? "Visa alla kategorier"
+                        : `${cat} (${storeCategories.find((c) => c.category === cat)?.count ?? 0})`
+                    }
+                  >
+                    <span>{cat === "Alla" ? "Alla kategorier" : cat}</span>
+                    {cat !== "Alla" && (
+                      <span
+                        style={{
+                          fontSize: 11,
+                          fontWeight: 700,
+                          color: isActive ? "rgba(255,255,255,0.9)" : "#a78bfa",
+                        }}
+                      >
+                        {storeCategories.find((c) => c.category === cat)?.count ?? 0}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </header>
 
       {/* Sort & filter bar */}
