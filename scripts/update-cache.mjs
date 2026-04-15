@@ -4,14 +4,15 @@ import { writeFileSync, mkdirSync, readdirSync, unlinkSync } from "fs";
 import { join } from "path";
 
 const FEED_URL =
-  "https://productdata.awin.com/datafeed/download/apikey/e1f765d6091f3fe2034630528473dd09/language/sv/fid/28201,66049,66051,71335,75951,85876,90563,92875,98177,109678,110674,111829/rid/0/hasEnhancedFeeds/0/columns/aw_deep_link,product_name,aw_product_id,merchant_product_id,merchant_image_url,description,merchant_category,search_price,merchant_name,merchant_id,category_name,category_id,aw_image_url,currency,store_price,delivery_cost,merchant_deep_link,language,last_updated,display_price,data_feed_id,brand_name,brand_id,colour,product_short_description,specifications,condition,product_model,model_number,dimensions,keywords,promotional_text,product_type,commission_group,merchant_product_category_path,merchant_product_second_category,merchant_product_third_category,rrp_price,saving,savings_percent,base_price,base_price_amount,base_price_text,product_price_old,in_stock,stock_quantity,valid_from,valid_to,is_for_sale,web_offer,pre_order,stock_status,size_stock_status,size_stock_amount,merchant_thumb_url,large_image,alternate_image,aw_thumb_url,alternate_image_two,alternate_image_three,alternate_image_four,reviews,average_rating,rating,number_available,Fashion%3Asuitable_for,Fashion%3Acategory,Fashion%3Asize,Fashion%3Amaterial,Fashion%3Apattern,Fashion%3Aswatch/format/csv/delimiter/%2C/compression/gzip/adultcontent/1/";
+  "https://productdata.awin.com/datafeed/download/apikey/e1f765d6091f3fe2034630528473dd09/language/sv/fid/28201,66049,66051,71335,75951,85876,90563,92875,98177,110674,111829/rid/0/hasEnhancedFeeds/0/columns/aw_deep_link,product_name,aw_product_id,merchant_product_id,merchant_image_url,description,merchant_category,search_price,merchant_name,merchant_id,category_name,category_id,aw_image_url,currency,store_price,delivery_cost,merchant_deep_link,language,last_updated,display_price,data_feed_id,brand_name,brand_id,colour,product_short_description,specifications,condition,product_model,model_number,dimensions,keywords,promotional_text,product_type,commission_group,merchant_product_category_path,merchant_product_second_category,merchant_product_third_category,rrp_price,saving,savings_percent,base_price,base_price_amount,base_price_text,product_price_old,in_stock,stock_quantity,valid_from,valid_to,is_for_sale,web_offer,pre_order,stock_status,size_stock_status,size_stock_amount,merchant_thumb_url,large_image,alternate_image,aw_thumb_url,alternate_image_two,alternate_image_three,alternate_image_four,reviews,average_rating,rating,number_available,Fashion%3Asuitable_for,Fashion%3Acategory,Fashion%3Asize,Fashion%3Amaterial,Fashion%3Apattern,Fashion%3Aswatch/format/csv/delimiter/%2C/compression/gzip/adultcontent/1/";
 
 function isExcludedMerchant(merchantName) {
   const s = String(merchantName || "").toLowerCase();
   return (
     s.includes("babubas") ||
     s.includes("deluxehomeartshop") ||
-    s.includes("perfumeza")
+    s.includes("perfumeza") ||
+    s.includes("bloomcabin")
   );
 }
 
@@ -189,7 +190,6 @@ function mapCategory(productName, merchantCategory, categoryPath, storeName) {
   }
 
   if (store.includes("diamond smile")) return "Hälsa";
-  if (store.includes("bloomcabin")) return "Hem";
   if (store.includes("navimow")) return "Trädgård";
 
   if (store.includes("outnorth")) {
@@ -250,7 +250,6 @@ async function main() {
       const storeLower = storeName.toLowerCase();
       const skipMinDiscount =
         storeLower.includes("jotex") ||
-        storeLower.includes("bloomcabin") ||
         storeLower.includes("diamond smile") ||
         storeLower.includes("navimow");
 

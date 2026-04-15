@@ -1,6 +1,5 @@
 export const KNOWN_STORES = [
   "Apotek Hjärtat SE",
-  "Bloomcabin Sweden",
   "Diamond Smile SE",
   "Dyson SE",
   "Jotex SE",
@@ -14,7 +13,6 @@ export const KNOWN_STORES = [
 
 export const STORE_SLUGS: Record<string, string> = {
   "Apotek Hjärtat SE": "apotek-hjartat",
-  "Bloomcabin Sweden": "bloomcabin",
   "Diamond Smile SE": "diamond-smile",
   "Dyson SE": "dyson",
   "Jotex SE": "jotex",

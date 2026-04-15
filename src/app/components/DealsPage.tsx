@@ -9,7 +9,6 @@ import { KNOWN_STORES, formatStoreName } from "@/lib/seo";
 const STORE_CONFIG: Record<string, { emoji: string; color: string }> = {
   Alla: { emoji: "✨", color: "#a855f7" },
   "Apotek Hjärtat SE": { emoji: "💊", color: "#f97316" },
-  "Bloomcabin Sweden": { emoji: "🌿", color: "#22c55e" },
   "Diamond Smile SE": { emoji: "✨", color: "#38bdf8" },
   "Dyson SE": { emoji: "🌪️", color: "#64748b" },
   "Jotex SE": { emoji: "🛋️", color: "#ea580c" },
