@@ -9,12 +9,18 @@ import { KNOWN_STORES, formatStoreName } from "@/lib/seo";
 const STORE_CONFIG: Record<string, { emoji: string; color: string }> = {
   Alla: { emoji: "✨", color: "#a855f7" },
   "Apotek Hjärtat SE": { emoji: "💊", color: "#f97316" },
+  "Babubas SE": { emoji: "👶", color: "#f472b6" },
+  "Bloomcabin Sweden": { emoji: "🌿", color: "#22c55e" },
+  "Deluxehomeartshop SE": { emoji: "🖼️", color: "#a78bfa" },
+  "Diamond Smile SE": { emoji: "✨", color: "#38bdf8" },
   "Dyson SE": { emoji: "🌪️", color: "#64748b" },
   "Jotex SE": { emoji: "🛋️", color: "#ea580c" },
+  "Navimow EU": { emoji: "🌱", color: "#16a34a" },
   "Padel Market": { emoji: "🏸", color: "#7c3aed" },
   "Nelly SE": { emoji: "👗", color: "#ec4899" },
   "NLY Man SE": { emoji: "👔", color: "#3b82f6" },
   "Outnorth SE": { emoji: "⛰️", color: "#059669" },
+  "Perfumeza SE": { emoji: "🌸", color: "#db2777" },
   "Xiaomi SE": { emoji: "📱", color: "#ef4444" },
 };
 

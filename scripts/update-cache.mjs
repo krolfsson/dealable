@@ -4,7 +4,7 @@ import { writeFileSync, mkdirSync, readdirSync, unlinkSync } from "fs";
 import { join } from "path";
 
 const FEED_URL =
-  "https://productdata.awin.com/datafeed/download/apikey/e1f765d6091f3fe2034630528473dd09/language/sv/fid/66049,66051,71335,75951,85876,90563,98177,110674/columns/aw_deep_link,product_name,aw_product_id,merchant_image_url,merchant_thumb_url,merchant_category,search_price,merchant_name,display_price,rrp_price,savings_percent,product_price_old,brand_name,aw_image_url,aw_thumb_url,large_image,alternate_image,alternate_image_two,alternate_image_three,alternate_image_four,in_stock,last_updated,merchant_product_category_path,currency,colour,product_short_description/format/csv/delimiter/%2C/compression/gzip/adultcontent/1/";
+  "https://productdata.awin.com/datafeed/download/apikey/e1f765d6091f3fe2034630528473dd09/language/sv/fid/28201,66049,66051,71335,75951,85876,90563,92875,98177,109678,109860,109861,110453,110674,111829,112410/rid/0/hasEnhancedFeeds/0/columns/aw_deep_link,product_name,aw_product_id,merchant_product_id,merchant_image_url,description,merchant_category,search_price,merchant_name,merchant_id,category_name,category_id,aw_image_url,currency,store_price,delivery_cost,merchant_deep_link,language,last_updated,display_price,data_feed_id,brand_name,brand_id,colour,product_short_description,specifications,condition,product_model,model_number,dimensions,keywords,promotional_text,product_type,commission_group,merchant_product_category_path,merchant_product_second_category,merchant_product_third_category,rrp_price,saving,savings_percent,base_price,base_price_amount,base_price_text,product_price_old,in_stock,stock_quantity,valid_from,valid_to,is_for_sale,web_offer,pre_order,stock_status,size_stock_status,size_stock_amount,merchant_thumb_url,large_image,alternate_image,aw_thumb_url,alternate_image_two,alternate_image_three,alternate_image_four,reviews,average_rating,rating,number_available,Fashion%3Asuitable_for,Fashion%3Acategory,Fashion%3Asize,Fashion%3Amaterial,Fashion%3Apattern,Fashion%3Aswatch/format/csv/delimiter/%2C/compression/gzip/adultcontent/1/";
 
 const MIN_DISCOUNT = 20;
 const CHUNK_SIZE = 2000;
@@ -13,6 +13,26 @@ function parsePrice(value) {
   if (!value) return 0;
   const cleaned = value.replace(/[^0-9.,]/g, "").replace(",", ".");
   return parseFloat(cleaned) || 0;
+}
+
+function stableIntFromKey(s) {
+  let h = 2166136261 >>> 0;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 16777619) >>> 0;
+  }
+  return h === 0 ? 1 : h;
+}
+
+function dealDedupeKey(row, storeName) {
+  const store = storeName.toLowerCase().trim();
+  const mpid = String(row.merchant_product_id ?? "").trim();
+  const pid = String(row.aw_product_id ?? "").trim();
+  const fid = String(row.data_feed_id ?? "").trim();
+  const title = String(row.product_name ?? "").trim().toLowerCase();
+  if (mpid) return `${store}|${mpid}|${fid}`;
+  if (pid) return `${store}|${pid}|${fid}`;
+  return `${store}|${title}|${fid}`;
 }
 
 function normalizeImageUrl(raw) {
@@ -133,6 +153,12 @@ function mapCategory(productName, merchantCategory, categoryPath, storeName) {
     return "Kläder";
   }
 
+  if (store.includes("perfumeza")) return "Parfym & doft";
+  if (store.includes("diamond smile")) return "Hälsa";
+  if (store.includes("babubas")) return "Barn & baby";
+  if (store.includes("bloomcabin") || store.includes("deluxehome")) return "Hem";
+  if (store.includes("navimow")) return "Trädgård";
+
   if (store.includes("outnorth")) {
     if (cat.includes("dunjack") || cat.includes("jacka") || cat.includes("softshell") || cat.includes("skaljack") || cat.includes("fleece") || name.includes("jacka")) return "Jackor";
     if (cat.includes("skor") || cat.includes("kängor") || cat.includes("sandal") || cat.includes("vandringsskor") || name.includes("sko") || name.includes("boot") || name.includes("känga")) return "Skor";
@@ -180,21 +206,30 @@ async function main() {
 
       const inStock = row.in_stock !== "0" && row.in_stock?.toLowerCase() !== "false";
       const storeName = String(row.merchant_name || "");
-      const allowMissingDiscount = storeName.toLowerCase().includes("jotex");
+      const storeLower = storeName.toLowerCase();
+      const skipMinDiscount =
+        storeLower.includes("jotex") ||
+        storeLower.includes("babubas") ||
+        storeLower.includes("bloomcabin") ||
+        storeLower.includes("deluxehome") ||
+        storeLower.includes("diamond smile") ||
+        storeLower.includes("navimow") ||
+        storeLower.includes("perfumeza");
 
       if (
         !inStock ||
         currentPrice <= 0 ||
         !row.product_name ||
-        (!allowMissingDiscount && discount < MIN_DISCOUNT)
+        (!skipMinDiscount && discount < MIN_DISCOUNT)
       ) {
         return null;
       }
 
       const { image, imageFallbacks } = pickProductImages(row);
+      const dedupeKey = dealDedupeKey(row, storeName);
 
       return {
-        id: row.aw_product_id,
+        id: stableIntFromKey(dedupeKey),
         title: row.product_name || "",
         brand: row.brand_name || "",
         store: storeName,
@@ -211,31 +246,34 @@ async function main() {
         image,
         ...(imageFallbacks.length ? { imageFallbacks } : {}),
         url: row.aw_deep_link || "",
-        description: row.product_short_description || "",
+        description: row.product_short_description || row.description || "",
         currency: row.currency || "SEK",
         colour: row.colour || "",
         inStock: true,
         hot: discount >= 40,
         firstSeen: row.last_updated || new Date().toISOString(),
+        dedupeKey,
       };
     })
     .filter(Boolean);
 
-  // Ta bort dubletter (samma titel + butik, behåll bästa rabatten)
+  deals.sort((a, b) => {
+    if (b.discountNum !== a.discountNum) return b.discountNum - a.discountNum;
+    return a.price - b.price;
+  });
+
   const seen = new Map();
   const uniqueDeals = deals.filter((d) => {
-    const key = (d.title + "||" + d.store).toLowerCase().trim();
-    if (seen.has(key)) return false;
+    const key = String(d.dedupeKey || "");
+    if (!key || seen.has(key)) return false;
     seen.set(key, true);
     return true;
   });
   console.log(`🧹 Removed ${deals.length - uniqueDeals.length} duplicates (${uniqueDeals.length} unique)`);
 
-  // Sortera: störst rabatt först
-  uniqueDeals.sort((a, b) => {
-    if (b.discountNum !== a.discountNum) return b.discountNum - a.discountNum;
-    return a.price - b.price;
-  });
+  for (const d of uniqueDeals) {
+    delete d.dedupeKey;
+  }
 
   const stores = Array.from(new Set(uniqueDeals.map((d) => d.store))).sort((a, b) =>
     a.localeCompare(b, "sv")
