@@ -542,7 +542,7 @@ export default function DealsPage({
           <span style={{ fontWeight: 600, color: "#7e22ce" }}>
             {filteredDeals.length}
           </span>{" "}
-          deals hittades
+          affiliatedeals hittades
           {lastUpdated && (
             <>
               {" · "}
@@ -732,7 +732,7 @@ export default function DealsPage({
               fontSize: 13,
             }}
           >
-            ✨ Du har sett alla {filteredDeals.length} deals!
+            ✨ Du har sett alla {filteredDeals.length} affiliatedeals!
           </p>
         )}
 
