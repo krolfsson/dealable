@@ -93,8 +93,15 @@ async function main() {
       }
 
       const inStock = row.in_stock !== "0" && row.in_stock?.toLowerCase() !== "false";
+      const storeName = String(row.merchant_name || "");
+      const allowMissingDiscount = storeName.toLowerCase().includes("jotex");
 
-      if (!inStock || currentPrice <= 0 || !row.product_name || discount < MIN_DISCOUNT) {
+      if (
+        !inStock ||
+        currentPrice <= 0 ||
+        !row.product_name ||
+        (!allowMissingDiscount && discount < MIN_DISCOUNT)
+      ) {
         return null;
       }
 
@@ -102,16 +109,16 @@ async function main() {
         id: row.aw_product_id,
         title: row.product_name || "",
         brand: row.brand_name || "",
-        store: row.merchant_name || "",
+        store: storeName,
         price: currentPrice,
         originalPrice: oldPrice > currentPrice ? oldPrice : 0,
-        discount: `-${Math.round(discount)}%`,
+        discount: discount > 0 ? `-${Math.round(discount)}%` : "DEAL",
         discountNum: discount,
         category: mapCategory(
           row.product_name || "",
           row.merchant_category || "",
           row.merchant_product_category_path || "",
-          row.merchant_name || ""
+          storeName
         ),
         image: row.large_image || row.aw_image_url || row.merchant_image_url || "",
         url: row.aw_deep_link || "",
