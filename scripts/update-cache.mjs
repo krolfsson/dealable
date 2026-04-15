@@ -15,6 +15,32 @@ function parsePrice(value) {
   return parseFloat(cleaned) || 0;
 }
 
+function listPriceAboveCurrent(row, currentPrice) {
+  if (currentPrice <= 0) return 0;
+  const candidates = [
+    parsePrice(row.rrp_price),
+    parsePrice(row.product_price_old),
+    parsePrice(row.store_price),
+    parsePrice(row.base_price_amount),
+    parsePrice(row.base_price),
+    parsePrice(row.base_price_text),
+  ].filter((n) => n > currentPrice);
+  return candidates.length ? Math.max(...candidates) : 0;
+}
+
+function maxPercentFromMarketingFields(row) {
+  const blob = [row.saving, row.promotional_text, row.web_offer].map((s) => String(s || "")).join("");
+  if (!blob) return 0;
+  const re = /(?:^|[^\d])(\d{1,2}(?:[.,]\d+)?|100)\s*%/g;
+  let max = 0;
+  let m;
+  while ((m = re.exec(blob)) !== null) {
+    const v = Math.round(parseFloat(m[1].replace(",", ".")));
+    if (Number.isFinite(v) && v > max && v <= 100) max = v;
+  }
+  return max;
+}
+
 function stableIntFromKey(s) {
   let h = 2166136261 >>> 0;
   for (let i = 0; i < s.length; i++) {
@@ -197,12 +223,18 @@ async function main() {
   const deals = records
     .map((row) => {
       const currentPrice = parsePrice(row.display_price) || parsePrice(row.search_price) || 0;
-      const oldPrice = parsePrice(row.product_price_old) || parsePrice(row.rrp_price) || 0;
+      const oldPrice = listPriceAboveCurrent(row, currentPrice);
 
-      let discount = parseFloat(row.savings_percent) || 0;
+      let discount =
+        parseFloat(
+          String(row.savings_percent ?? "")
+            .replace(/%/g, "")
+            .replace(",", ".")
+        ) || 0;
       if (!discount && oldPrice > currentPrice && currentPrice > 0) {
         discount = Math.round((1 - currentPrice / oldPrice) * 100);
       }
+      if (!discount) discount = maxPercentFromMarketingFields(row);
 
       const inStock = row.in_stock !== "0" && row.in_stock?.toLowerCase() !== "false";
       const storeName = String(row.merchant_name || "");
