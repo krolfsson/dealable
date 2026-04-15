@@ -27,6 +27,55 @@ function mapCategory(
   const path = (categoryPath || "").toLowerCase();
   const store = (storeName || "").toLowerCase();
 
+  if (store.includes("apotek")) {
+    // Apotek Hjärtat: merchant_category is a "Produkter > ..." taxonomy
+    if (cat.includes("hudvård") || cat.includes("ansiktsvård") || cat.includes("kroppsvård")) return "Hudvård";
+    if (cat.includes("hårvård") || cat.includes("schampo") || cat.includes("balsam")) return "Hårvård";
+    if (cat.includes("smink") || cat.includes("makeup") || cat.includes("kosmetik")) return "Smink";
+    if (cat.includes("parfym") || cat.includes("doft")) return "Parfym & doft";
+    if (cat.includes("känslig hud") || cat.includes("derma") || cat.includes("eksem")) return "Derma";
+    if (cat.includes("mun") || cat.includes("tand") || cat.includes("munvård")) return "Munvård";
+    if (cat.includes("intim") || cat.includes("sex") || cat.includes("lust")) return "Sex & intim";
+    if (cat.includes("kosttillskott") || cat.includes("vitamin") || cat.includes("mineral")) return "Kosttillskott";
+    if (cat.includes("mage") || cat.includes("tarm") || cat.includes("mjölksyrabakterier")) return "Mage & tarm";
+    if (cat.includes("barn") || cat.includes("baby") || cat.includes("gravid")) return "Barn & baby";
+    if (cat.includes("sol") || cat.includes("spf") || cat.includes("solskydd")) return "Solskydd";
+    if (cat.includes("rak") || cat.includes("deodorant") || cat.includes("hygien") || cat.includes("tvål")) return "Hygien";
+    if (cat.includes("feber") || cat.includes("förkyl") || cat.includes("hosta") || cat.includes("allerg")) return "Hälsa";
+    if (cat.includes("plåster") || cat.includes("förband") || cat.includes("sår")) return "Första hjälpen";
+    return "Apotek";
+  }
+
+  if (store.includes("xiaomi")) {
+    // Xiaomi: categoryPath carries the taxonomy: "Mi > ..."
+    if (path.includes("telefon") || path.includes("smartphone")) return "Mobiler";
+    if (path.includes("surfplatt") || path.includes("tablet")) return "Surfplattor";
+    if (path.includes("hörlur") || path.includes("headset") || path.includes("högtalare") || path.includes("sound")) return "Ljud";
+    if (path.includes("tv") || path.includes("tv-box") || path.includes("tv-stick") || path.includes("projektor")) return "TV & video";
+    if (path.includes("dammsug")) return "Dammsugare & tillbehör";
+    if (path.includes("luftren")) return "Luftrenare";
+    if (path.includes("belysning")) return "Belysning";
+    if (path.includes("klock") || path.includes("smartwatch") || path.includes("armband")) return "Wearables";
+    if (path.includes("skrivare")) return "Skrivare";
+    if (path.includes("router") || path.includes("wifi") || path.includes("nätverk")) return "Nätverk";
+    if (path.includes("smart hem") || path.includes("sensor") || path.includes("kamera")) return "Smart hem";
+    if (path.includes("hårfön") || path.includes("personvård")) return "Personvård";
+    return "Elektronik";
+  }
+
+  if (store.includes("jotex")) {
+    // Jotex: feed often lacks category fields; infer from product name keywords
+    if (name.includes("lampa") || name.includes("lamp") || name.includes("ljuskälla") || name.includes("ljusstake") || name.includes("solcell")) return "Belysning";
+    if (name.includes("gardin") || name.includes("rullgardin") || name.includes("persienn")) return "Gardiner";
+    if (name.includes("matta") || name.includes("rug")) return "Mattor";
+    if (name.includes("säng") || name.includes("påslakan") || name.includes("lakan") || name.includes("örngott") || name.includes("kudde") || name.includes("täcke") || name.includes("överkast")) return "Sovrum";
+    if (name.includes("handduk") || name.includes("badlakan") || name.includes("badrock") || name.includes("dusch")) return "Badrum";
+    if (name.includes("bord") || name.includes("stol") || name.includes("soffa") || name.includes("fåtölj") || name.includes("hylla") || name.includes("skåp")) return "Möbler";
+    if (name.includes("duk") || name.includes("servett") || name.includes("glas") || name.includes("tallrik") || name.includes("bestick")) return "Kök & dukning";
+    if (name.includes("kudde") || name.includes("pläd") || name.includes("filt") || name.includes("vas") || name.includes("ljus")) return "Inredning";
+    return "Hem";
+  }
+
   if (store.includes("padel")) {
     if (name.includes("racket") || name.includes("pala")) return "Padelracketar";
     if (name.includes("boll") || name.includes("ball")) return "Bollar";
