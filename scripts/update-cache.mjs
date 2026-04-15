@@ -4,7 +4,7 @@ import { writeFileSync, mkdirSync, readdirSync, unlinkSync } from "fs";
 import { join } from "path";
 
 const FEED_URL =
-  "https://productdata.awin.com/datafeed/download/apikey/e1f765d6091f3fe2034630528473dd09/language/sv/fid/66049,66051,71335,75951,85876,90563,98177,110674/columns/aw_deep_link,product_name,aw_product_id,merchant_image_url,merchant_category,search_price,merchant_name,display_price,rrp_price,savings_percent,product_price_old,brand_name,aw_image_url,large_image,in_stock,last_updated,merchant_product_category_path,currency,colour,product_short_description/format/csv/delimiter/%2C/compression/gzip/adultcontent/1/";
+  "https://productdata.awin.com/datafeed/download/apikey/e1f765d6091f3fe2034630528473dd09/language/sv/fid/66049,66051,71335,75951,85876,90563,98177,110674/columns/aw_deep_link,product_name,aw_product_id,merchant_image_url,merchant_thumb_url,merchant_category,search_price,merchant_name,display_price,rrp_price,savings_percent,product_price_old,brand_name,aw_image_url,aw_thumb_url,large_image,alternate_image,alternate_image_two,alternate_image_three,alternate_image_four,in_stock,last_updated,merchant_product_category_path,currency,colour,product_short_description/format/csv/delimiter/%2C/compression/gzip/adultcontent/1/";
 
 const MIN_DISCOUNT = 20;
 const CHUNK_SIZE = 2000;
@@ -13,6 +13,43 @@ function parsePrice(value) {
   if (!value) return 0;
   const cleaned = value.replace(/[^0-9.,]/g, "").replace(",", ".");
   return parseFloat(cleaned) || 0;
+}
+
+function normalizeImageUrl(raw) {
+  const s = String(raw || "").trim();
+  if (!s) return "";
+  if (s.startsWith("//")) return `https:${s}`;
+  if (s.startsWith("http://") || s.startsWith("https://")) return s;
+  return "";
+}
+
+function pickProductImages(row) {
+  const candidates = [
+    row.large_image,
+    row.aw_image_url,
+    row.merchant_image_url,
+    row.merchant_thumb_url,
+    row.aw_thumb_url,
+    row.alternate_image,
+    row.alternate_image_two,
+    row.alternate_image_three,
+    row.alternate_image_four,
+  ]
+    .map(normalizeImageUrl)
+    .filter(Boolean);
+
+  const deduped = [];
+  const seen = new Set();
+  for (const u of candidates) {
+    if (seen.has(u)) continue;
+    seen.add(u);
+    deduped.push(u);
+  }
+
+  return {
+    image: deduped[0] || "",
+    imageFallbacks: deduped.slice(1, 6),
+  };
 }
 
 function mapCategory(productName, merchantCategory, categoryPath, storeName) {
@@ -154,6 +191,8 @@ async function main() {
         return null;
       }
 
+      const { image, imageFallbacks } = pickProductImages(row);
+
       return {
         id: row.aw_product_id,
         title: row.product_name || "",
@@ -169,7 +208,8 @@ async function main() {
           row.merchant_product_category_path || "",
           storeName
         ),
-        image: row.large_image || row.aw_image_url || row.merchant_image_url || "",
+        image,
+        ...(imageFallbacks.length ? { imageFallbacks } : {}),
         url: row.aw_deep_link || "",
         description: row.product_short_description || "",
         currency: row.currency || "SEK",

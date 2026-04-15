@@ -18,6 +18,72 @@ const STORE_CONFIG: Record<string, { emoji: string; color: string }> = {
   "Xiaomi SE": { emoji: "📱", color: "#ef4444" },
 };
 
+function buildImageAttemptList(deal: Deal): string[] {
+  const raw = [deal.image, ...(deal.imageFallbacks || [])].map((s) => String(s || "").trim()).filter(Boolean);
+  const out: string[] = [];
+  const seen = new Set<string>();
+
+  for (const url of raw) {
+    const hi = getHiResImage(url);
+    for (const candidate of hi === url ? [url] : [hi, url]) {
+      if (!candidate || seen.has(candidate)) continue;
+      seen.add(candidate);
+      out.push(candidate);
+    }
+  }
+
+  return out;
+}
+
+function DealCardImage({
+  deal,
+  placeholderEmoji,
+}: {
+  deal: Deal;
+  placeholderEmoji: string;
+}) {
+  const attempts = useMemo(() => buildImageAttemptList(deal), [deal]);
+  const [idx, setIdx] = useState(0);
+
+  const src = attempts[idx] || "";
+
+  if (!src) {
+    return (
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: "#f5f3ff",
+          color: "#c4b5fd",
+          fontSize: 40,
+        }}
+      >
+        {placeholderEmoji}
+      </div>
+    );
+  }
+
+  return (
+    <Image
+      key={src}
+      src={src}
+      alt={deal.title}
+      fill
+      sizes="(max-width: 640px) 45vw, 280px"
+      quality={75}
+      unoptimized={src.includes("productserve.com")}
+      referrerPolicy="no-referrer"
+      style={{ objectFit: "cover" }}
+      onError={() => {
+        setIdx((i) => (i + 1 < attempts.length ? i + 1 : i));
+      }}
+    />
+  );
+}
+
 type SortOption = "discount" | "cheapest" | "expensive";
 
 const PAGE_SIZE = 60;
@@ -83,21 +149,21 @@ export default function DealsPage({
       // 2. Load first chunk
       const firstRes = await fetch("/cache/deals-0.json");
       if (!firstRes.ok) throw new Error("Kunde inte hämta deals");
-      const firstChunk = await firstRes.json();
+      const firstChunk = (await firstRes.json()) as Deal[];
       setAllDeals(firstChunk);
       setError(null);
       setLoading(false);
 
       // 3. Load remaining chunks in background
       if (meta.totalChunks > 1) {
-        const remaining: any[] = [];
+        const remaining: Deal[] = [];
         const fetches = [];
         for (let i = 1; i < meta.totalChunks; i++) {
           fetches.push(
             fetch(`/cache/deals-${i}.json`)
               .then((r) => r.json())
               .then((chunk) => {
-                remaining.push(...chunk);
+                remaining.push(...(chunk as Deal[]));
               })
           );
         }
@@ -581,31 +647,11 @@ export default function DealsPage({
                   }}
                 >
                   <div className="card-image" style={{ position: "relative", overflow: "hidden" }}>
-                    {deal.image ? (
-                      <Image
-                        src={getHiResImage(deal.image)}
-                        alt={deal.title}
-                        fill
-                        sizes="(max-width: 640px) 45vw, 280px"
-                        quality={75}
-                        style={{ objectFit: "cover" }}
-                      />
-                    ) : (
-                      <div
-                        style={{
-                          position: "absolute",
-                          inset: 0,
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          background: "#f5f3ff",
-                          color: "#c4b5fd",
-                          fontSize: 40,
-                        }}
-                      >
-                        {storeConfig.emoji}
-                      </div>
-                    )}
+                    <DealCardImage
+                      key={`${deal.image}|${(deal.imageFallbacks || []).join("|")}`}
+                      deal={deal}
+                      placeholderEmoji={storeConfig.emoji}
+                    />
                     <span
                       className="card-badge gradient-badge"
                       style={{

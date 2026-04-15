@@ -11,6 +11,8 @@ export interface Deal {
   discount: string;
   category: string;
   image: string;
+  /** Extra Awin image URLs (thumb / alternates) used if the primary image fails to load */
+  imageFallbacks?: string[];
   url: string;
   couponCode?: string;
   hot: boolean;
