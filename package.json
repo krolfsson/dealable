@@ -4,11 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "tsx scripts/update-cache.ts && next build",
+    "build": "node scripts/update-cache.mjs && next build --webpack",
     "start": "next start",
     "lint": "eslint",
     "scrape": "npx tsx src/lib/scrape-cli.ts",
-    "update-cache": "tsx scripts/update-cache.ts"
+    "update-cache": "node scripts/update-cache.mjs"
   },
   "dependencies": {
     "cheerio": "^1.0.0",
@@ -25,6 +25,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "esbuild": "^0.28.0",
     "eslint": "^9",
     "eslint-config-next": "16.2.2",
     "tailwindcss": "^4",

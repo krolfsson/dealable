@@ -1,4 +1,3 @@
-// scripts/update-cache.ts
 import { parse } from "csv-parse/sync";
 import { gunzipSync } from "zlib";
 import { writeFileSync, mkdirSync, readdirSync, unlinkSync } from "fs";
@@ -10,18 +9,13 @@ const FEED_URL =
 const MIN_DISCOUNT = 20;
 const CHUNK_SIZE = 2000;
 
-function parsePrice(value: string | undefined): number {
+function parsePrice(value) {
   if (!value) return 0;
   const cleaned = value.replace(/[^0-9.,]/g, "").replace(",", ".");
   return parseFloat(cleaned) || 0;
 }
 
-function mapCategory(
-  productName: string,
-  merchantCategory: string,
-  categoryPath: string,
-  storeName: string
-): string {
+function mapCategory(productName, merchantCategory, categoryPath, storeName) {
   const name = (productName || "").toLowerCase();
   const cat = (merchantCategory || "").toLowerCase();
   const path = (categoryPath || "").toLowerCase();
@@ -81,11 +75,15 @@ async function main() {
   console.log(`📦 Downloaded ${(buffer.length / 1024 / 1024).toFixed(1)} MB`);
 
   const csv = gunzipSync(buffer).toString("utf-8");
-  const records = parse(csv, { columns: true, skip_empty_lines: true, relax_column_count: true });
+  const records = parse(csv, {
+    columns: true,
+    skip_empty_lines: true,
+    relax_column_count: true,
+  });
   console.log(`📊 Parsed ${records.length} rows`);
 
   const deals = records
-    .map((row: any) => {
+    .map((row) => {
       const currentPrice = parsePrice(row.display_price) || parsePrice(row.search_price) || 0;
       const oldPrice = parsePrice(row.product_price_old) || parsePrice(row.rrp_price) || 0;
 
@@ -128,8 +126,8 @@ async function main() {
     .filter(Boolean);
 
   // Ta bort dubletter (samma titel + butik, behåll bästa rabatten)
-  const seen = new Map<string, boolean>();
-  const uniqueDeals = deals.filter((d: any) => {
+  const seen = new Map();
+  const uniqueDeals = deals.filter((d) => {
     const key = (d.title + "||" + d.store).toLowerCase().trim();
     if (seen.has(key)) return false;
     seen.set(key, true);
@@ -138,12 +136,12 @@ async function main() {
   console.log(`🧹 Removed ${deals.length - uniqueDeals.length} duplicates (${uniqueDeals.length} unique)`);
 
   // Sortera: störst rabatt först
-  uniqueDeals.sort((a: any, b: any) => {
+  uniqueDeals.sort((a, b) => {
     if (b.discountNum !== a.discountNum) return b.discountNum - a.discountNum;
     return a.price - b.price;
   });
 
-  const stores = Array.from(new Set(uniqueDeals.map((d: any) => d.store))).sort((a, b) =>
+  const stores = Array.from(new Set(uniqueDeals.map((d) => d.store))).sort((a, b) =>
     a.localeCompare(b, "sv")
   );
 
@@ -183,12 +181,16 @@ async function main() {
   console.log(`\n✅ ${uniqueDeals.length} deals saved in ${totalChunks} chunks in ${elapsed}s`);
 
   // Stats per butik
-  const storeStats: Record<string, number> = {};
-  uniqueDeals.forEach((d: any) => { storeStats[d.store] = (storeStats[d.store] || 0) + 1; });
-  console.log("📊 Per butik:");
-  Object.entries(storeStats).sort((a, b) => b[1] - a[1]).forEach(([s, c]) => {
-    console.log(`   ${s}: ${c} deals`);
+  const storeStats = {};
+  uniqueDeals.forEach((d) => {
+    storeStats[d.store] = (storeStats[d.store] || 0) + 1;
   });
+  console.log("📊 Per butik:");
+  Object.entries(storeStats)
+    .sort((a, b) => b[1] - a[1])
+    .forEach(([s, c]) => {
+      console.log(`   ${s}: ${c} deals`);
+    });
 }
 
 main().catch(console.error);

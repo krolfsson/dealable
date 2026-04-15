@@ -7,11 +7,26 @@ import { timeAgo, formatPrice, parseDiscountValue, getHiResImage } from "@/lib/s
 
 const STORE_CONFIG: Record<string, { emoji: string; color: string }> = {
   Alla: { emoji: "✨", color: "#a855f7" },
+  "Apotek Hjärtat SE": { emoji: "💊", color: "#f97316" },
+  "Dyson SE": { emoji: "🌪️", color: "#64748b" },
+  "Jotex SE": { emoji: "🛋️", color: "#ea580c" },
   "Padel Market": { emoji: "🏸", color: "#7c3aed" },
   "Nelly SE": { emoji: "👗", color: "#ec4899" },
   "NLY Man SE": { emoji: "👔", color: "#3b82f6" },
   "Outnorth SE": { emoji: "⛰️", color: "#059669" },
+  "Xiaomi SE": { emoji: "📱", color: "#ef4444" },
 };
+
+const KNOWN_STORES = [
+  "Apotek Hjärtat SE",
+  "Dyson SE",
+  "Jotex SE",
+  "Nelly SE",
+  "NLY Man SE",
+  "Outnorth SE",
+  "Padel Market",
+  "Xiaomi SE",
+];
 
 type SortOption = "discount" | "cheapest" | "expensive";
 
@@ -58,7 +73,11 @@ export default function Home() {
       const metaRes = await fetch("/cache/deals-meta.json");
       if (!metaRes.ok) throw new Error("Kunde inte hämta deals");
       const meta = await metaRes.json();
-      setStores(meta.stores || []);
+      // Ensure all configured stores appear in the menu (even if a store has 0 deals right now)
+      const mergedStores = Array.from(
+        new Set([...(meta.stores || []), ...KNOWN_STORES])
+      ).sort((a, b) => a.localeCompare(b, "sv"));
+      setStores(mergedStores);
       setLastUpdated(meta.lastUpdated || "");
 
       // 2. Load first chunk (fast, ~1 MB)
