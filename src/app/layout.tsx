@@ -2,6 +2,7 @@ import CookieBanner from './components/CookieBanner';
 import type { Metadata } from "next";
 import "./globals.css";
 import JsonLd from './components/JsonLd';
+import { Analytics } from "@vercel/analytics/react";
 
 export const metadata: Metadata = {
   title: {
@@ -50,6 +51,7 @@ export default function RootLayout({
         <JsonLd />
         {children}
         <CookieBanner />
+        <Analytics />
       </body>
     </html>
   );
