@@ -22,19 +22,22 @@ export default function CookieBanner() {
   const loadAnalytics = () => {
     if (analyticsLoaded) return;
     try {
+      // GA4 official pattern: create dataLayer + gtag BEFORE loading gtag.js
+      window.dataLayer = window.dataLayer || [];
+      function gtag(...args: unknown[]) {
+        window.dataLayer.push(args);
+      }
+      // Expose for debugging / compatibility
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (window as any).gtag = gtag;
+
+      gtag('js', new Date());
+      gtag('config', 'G-CG97GM2S4L', { send_page_view: true });
+
       const script = document.createElement('script');
       script.src = 'https://www.googletagmanager.com/gtag/js?id=G-CG97GM2S4L';
       script.async = true;
       document.head.appendChild(script);
-
-      script.onload = () => {
-        window.dataLayer = window.dataLayer || [];
-        function gtag(...args: unknown[]) {
-          window.dataLayer.push(args);
-        }
-        gtag('js', new Date());
-        gtag('config', 'G-CG97GM2S4L');
-      };
 
       setAnalyticsLoaded(true);
     } catch {
