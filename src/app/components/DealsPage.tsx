@@ -15,6 +15,7 @@ const STORE_CONFIG: Record<string, { emoji: string; color: string }> = {
   "Navimow EU": { emoji: "🌱", color: "#16a34a" },
   "Padel Market": { emoji: "🏸", color: "#7c3aed" },
   "Nelly SE": { emoji: "👗", color: "#ec4899" },
+  "Ninja SE": { emoji: "🥷", color: "#0f172a" },
   "NLY Man SE": { emoji: "👔", color: "#3b82f6" },
   "Outnorth SE": { emoji: "⛰️", color: "#059669" },
   "Xiaomi SE": { emoji: "📱", color: "#ef4444" },
