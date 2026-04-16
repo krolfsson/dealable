@@ -90,6 +90,16 @@ function dealDedupeKey(row: Record<string, string | undefined>, storeName: strin
   return `${store}|title:${title}`;
 }
 
+function normalizeTitleKey(title: string): string {
+  return String(title || "")
+    .toLowerCase()
+    .trim()
+    .replace(/&/g, " och ")
+    .replace(/[^a-z0-9åäö]+/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 function normalizeStoreName(raw: string): string {
   const s = String(raw || "").trim();
   if (!s) return s;
@@ -343,7 +353,7 @@ async function main() {
     return a.price - b.price;
   });
 
-  // Ta bort dubletter (samma produkt i samma butik + feed, behåll bästa raden)
+  // Ta bort dubletter (samma produkt i samma butik, behåll bästa raden)
   const seen = new Map<string, boolean>();
   const uniqueDeals = deals.filter((d: any) => {
     const key = String(d.dedupeKey || "");
@@ -351,13 +361,29 @@ async function main() {
     seen.set(key, true);
     return true;
   });
-  console.log(`🧹 Removed ${deals.length - uniqueDeals.length} duplicates (${uniqueDeals.length} unique)`);
+  const removedByKey = deals.length - uniqueDeals.length;
 
-  for (const d of uniqueDeals as any[]) {
+  // Extra: endast 1 per (butik + produktnamn) för att undvika "samma kort" flera gånger
+  const seenTitles = new Set<string>();
+  const uniqueByTitle = uniqueDeals.filter((d: any) => {
+    const t = normalizeTitleKey(String(d.title || ""));
+    const store = String(d.store || "").toLowerCase().trim();
+    const k = `${store}|${t}`;
+    if (!t || seenTitles.has(k)) return false;
+    seenTitles.add(k);
+    return true;
+  });
+  const removedByTitle = uniqueDeals.length - uniqueByTitle.length;
+
+  console.log(
+    `🧹 Removed ${removedByKey + removedByTitle} duplicates (${uniqueByTitle.length} unique)`
+  );
+
+  for (const d of uniqueByTitle as any[]) {
     delete d.dedupeKey;
   }
 
-  const stores = Array.from(new Set(uniqueDeals.map((d: any) => d.store))).sort((a, b) =>
+  const stores = Array.from(new Set(uniqueByTitle.map((d: any) => d.store))).sort((a, b) =>
     a.localeCompare(b, "sv")
   );
 
@@ -374,9 +400,9 @@ async function main() {
   } catch {}
 
   // Dela upp i chunks
-  const totalChunks = Math.ceil(uniqueDeals.length / CHUNK_SIZE);
+  const totalChunks = Math.ceil(uniqueByTitle.length / CHUNK_SIZE);
   for (let i = 0; i < totalChunks; i++) {
-    const chunk = uniqueDeals.slice(i * CHUNK_SIZE, (i + 1) * CHUNK_SIZE);
+    const chunk = uniqueByTitle.slice(i * CHUNK_SIZE, (i + 1) * CHUNK_SIZE);
     const chunkPath = join(cacheDir, `deals-${i}.json`);
     writeFileSync(chunkPath, JSON.stringify(chunk));
     const size = (Buffer.byteLength(JSON.stringify(chunk)) / 1024).toFixed(0);
@@ -386,7 +412,7 @@ async function main() {
   // Meta-fil (liten, laddas först)
   const meta = {
     lastUpdated: new Date().toISOString(),
-    totalDeals: uniqueDeals.length,
+    totalDeals: uniqueByTitle.length,
     stores,
     totalChunks,
     chunkSize: CHUNK_SIZE,
@@ -394,11 +420,13 @@ async function main() {
   writeFileSync(join(cacheDir, "deals-meta.json"), JSON.stringify(meta));
 
   const elapsed = ((Date.now() - start) / 1000).toFixed(1);
-  console.log(`\n✅ ${uniqueDeals.length} deals saved in ${totalChunks} chunks in ${elapsed}s`);
+  console.log(`\n✅ ${uniqueByTitle.length} deals saved in ${totalChunks} chunks in ${elapsed}s`);
 
   // Stats per butik
   const storeStats: Record<string, number> = {};
-  uniqueDeals.forEach((d: any) => { storeStats[d.store] = (storeStats[d.store] || 0) + 1; });
+  uniqueByTitle.forEach((d: any) => {
+    storeStats[d.store] = (storeStats[d.store] || 0) + 1;
+  });
   console.log("📊 Per butik:");
   Object.entries(storeStats).sort((a, b) => b[1] - a[1]).forEach(([s, c]) => {
     console.log(`   ${s}: ${c} deals`);

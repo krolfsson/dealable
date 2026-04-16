@@ -78,6 +78,16 @@ function dealDedupeKey(row, storeName) {
   return `${store}|title:${title}`;
 }
 
+function normalizeTitleKey(title) {
+  return String(title || "")
+    .toLowerCase()
+    .trim()
+    .replace(/&/g, " och ")
+    .replace(/[^a-z0-9åäö]+/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 function normalizeStoreName(raw) {
   const s = String(raw || "").trim();
   if (!s) return s;
@@ -331,13 +341,28 @@ async function main() {
     seen.set(key, true);
     return true;
   });
-  console.log(`🧹 Removed ${deals.length - uniqueDeals.length} duplicates (${uniqueDeals.length} unique)`);
+  const removedByKey = deals.length - uniqueDeals.length;
 
-  for (const d of uniqueDeals) {
+  const seenTitles = new Set();
+  const uniqueByTitle = uniqueDeals.filter((d) => {
+    const t = normalizeTitleKey(String(d.title || ""));
+    const store = String(d.store || "").toLowerCase().trim();
+    const k = `${store}|${t}`;
+    if (!t || seenTitles.has(k)) return false;
+    seenTitles.add(k);
+    return true;
+  });
+  const removedByTitle = uniqueDeals.length - uniqueByTitle.length;
+
+  console.log(
+    `🧹 Removed ${removedByKey + removedByTitle} duplicates (${uniqueByTitle.length} unique)`
+  );
+
+  for (const d of uniqueByTitle) {
     delete d.dedupeKey;
   }
 
-  const stores = Array.from(new Set(uniqueDeals.map((d) => d.store))).sort((a, b) =>
+  const stores = Array.from(new Set(uniqueByTitle.map((d) => d.store))).sort((a, b) =>
     a.localeCompare(b, "sv")
   );
 
@@ -354,9 +379,9 @@ async function main() {
   } catch {}
 
   // Dela upp i chunks
-  const totalChunks = Math.ceil(uniqueDeals.length / CHUNK_SIZE);
+  const totalChunks = Math.ceil(uniqueByTitle.length / CHUNK_SIZE);
   for (let i = 0; i < totalChunks; i++) {
-    const chunk = uniqueDeals.slice(i * CHUNK_SIZE, (i + 1) * CHUNK_SIZE);
+    const chunk = uniqueByTitle.slice(i * CHUNK_SIZE, (i + 1) * CHUNK_SIZE);
     const chunkPath = join(cacheDir, `deals-${i}.json`);
     writeFileSync(chunkPath, JSON.stringify(chunk));
     const size = (Buffer.byteLength(JSON.stringify(chunk)) / 1024).toFixed(0);
@@ -366,7 +391,7 @@ async function main() {
   // Meta-fil (liten, laddas först)
   const meta = {
     lastUpdated: new Date().toISOString(),
-    totalDeals: uniqueDeals.length,
+    totalDeals: uniqueByTitle.length,
     stores,
     totalChunks,
     chunkSize: CHUNK_SIZE,
@@ -374,11 +399,11 @@ async function main() {
   writeFileSync(join(cacheDir, "deals-meta.json"), JSON.stringify(meta));
 
   const elapsed = ((Date.now() - start) / 1000).toFixed(1);
-  console.log(`\n✅ ${uniqueDeals.length} deals saved in ${totalChunks} chunks in ${elapsed}s`);
+  console.log(`\n✅ ${uniqueByTitle.length} deals saved in ${totalChunks} chunks in ${elapsed}s`);
 
   // Stats per butik
   const storeStats = {};
-  uniqueDeals.forEach((d) => {
+  uniqueByTitle.forEach((d) => {
     storeStats[d.store] = (storeStats[d.store] || 0) + 1;
   });
   console.log("📊 Per butik:");
