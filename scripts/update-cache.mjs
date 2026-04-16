@@ -63,11 +63,10 @@ function dealDedupeKey(row, storeName) {
   const store = storeName.toLowerCase().trim();
   const mpid = String(row.merchant_product_id ?? "").trim();
   const pid = String(row.aw_product_id ?? "").trim();
-  const fid = String(row.data_feed_id ?? "").trim();
   const title = String(row.product_name ?? "").trim().toLowerCase();
-  if (mpid) return `${store}|${mpid}|${fid}`;
-  if (pid) return `${store}|${pid}|${fid}`;
-  return `${store}|${title}|${fid}`;
+  if (mpid) return `${store}|mpid:${mpid}`;
+  if (pid) return `${store}|pid:${pid}`;
+  return `${store}|title:${title}`;
 }
 
 function normalizeStoreName(raw) {
