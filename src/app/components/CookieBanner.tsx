@@ -24,7 +24,8 @@ export default function CookieBanner() {
     try {
       // GA4 official pattern: create dataLayer + gtag BEFORE loading gtag.js
       window.dataLayer = window.dataLayer || [];
-      function gtag() {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      function gtag(..._args: any[]) {
         // Match Google's snippet: push the arguments object, not an array
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (window.dataLayer as any[]).push(arguments as any);
