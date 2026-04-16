@@ -109,8 +109,12 @@ export default function DealsPage({
   const [allDeals, setAllDeals] = useState<Deal[]>([]);
   const [stores, setStores] = useState<string[]>([]);
   const [lastUpdated, setLastUpdated] = useState("");
-  const [activeStore, setActiveStore] = useState(initialStore);
-  const [activeCategory, setActiveCategory] = useState(initialCategory);
+  const [activeStores, setActiveStores] = useState<Set<string>>(
+    () => new Set(initialStore && initialStore !== "Alla" ? [initialStore] : [])
+  );
+  const [activeCategories, setActiveCategories] = useState<Set<string>>(
+    () => new Set(initialCategory && initialCategory !== "Alla" ? [initialCategory] : [])
+  );
   const [sortBy, setSortBy] = useState<SortOption>("discount");
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
@@ -207,12 +211,19 @@ export default function DealsPage({
     loadAllDeals();
   }, [loadAllDeals]);
 
-  // Categories for the active store (dynamic, based on available deals)
+  const storeFilterLabel =
+    activeStores.size === 0 ? "Alla butiker" : `${activeStores.size} butik${activeStores.size === 1 ? "" : "er"}`;
+
+  const selectedStoresOrAll = useMemo(() => {
+    if (activeStores.size === 0) return null; // null means "all"
+    return new Set(activeStores);
+  }, [activeStores]);
+
+  // Categories for the selected stores (union, dynamic)
   const storeCategories = useMemo(() => {
-    if (activeStore === "Alla") return [];
     const counts = new Map<string, number>();
     for (const d of allDeals) {
-      if (d.store !== activeStore) continue;
+      if (selectedStoresOrAll && !selectedStoresOrAll.has(d.store)) continue;
       const cat = (d.category || "").trim();
       if (!cat) continue;
       counts.set(cat, (counts.get(cat) || 0) + 1);
@@ -220,18 +231,18 @@ export default function DealsPage({
     return Array.from(counts.entries())
       .sort((a, b) => a[0].localeCompare(b[0], "sv"))
       .map(([category, count]) => ({ category, count }));
-  }, [activeStore, allDeals]);
+  }, [selectedStoresOrAll, allDeals]);
 
   // Client-side filter + sort
   const filteredDeals = useMemo(() => {
     let result = allDeals;
 
-    if (activeStore !== "Alla") {
-      result = result.filter((d) => d.store === activeStore);
+    if (selectedStoresOrAll) {
+      result = result.filter((d) => selectedStoresOrAll.has(d.store));
     }
 
-    if (activeStore !== "Alla" && activeCategory !== "Alla") {
-      result = result.filter((d) => d.category === activeCategory);
+    if (activeCategories.size > 0) {
+      result = result.filter((d) => activeCategories.has(d.category));
     }
 
     if (debouncedSearch.trim()) {
@@ -257,18 +268,45 @@ export default function DealsPage({
     }
 
     return sorted;
-  }, [allDeals, activeStore, activeCategory, debouncedSearch, sortBy]);
+  }, [allDeals, selectedStoresOrAll, activeCategories, debouncedSearch, sortBy]);
 
   const visibleDeals = filteredDeals.slice(0, visibleCount);
   const hasMore = visibleCount < filteredDeals.length;
 
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);
-  }, [activeStore, activeCategory, debouncedSearch, sortBy]);
+  }, [activeStores, activeCategories, debouncedSearch, sortBy]);
 
+  // If the page is store/category-specific (SEO routes), keep initial selection stable
   useEffect(() => {
-    setActiveCategory("Alla");
-  }, [activeStore]);
+    if (initialStore && initialStore !== "Alla") {
+      setActiveStores(new Set([initialStore]));
+    }
+    if (initialCategory && initialCategory !== "Alla") {
+      setActiveCategories(new Set([initialCategory]));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const toggleStore = useCallback((store: string) => {
+    setActiveStores((prev) => {
+      const next = new Set(prev);
+      if (store === "Alla") return new Set();
+      if (next.has(store)) next.delete(store);
+      else next.add(store);
+      return next;
+    });
+  }, []);
+
+  const toggleCategory = useCallback((cat: string) => {
+    setActiveCategories((prev) => {
+      const next = new Set(prev);
+      if (cat === "Alla") return new Set();
+      if (next.has(cat)) next.delete(cat);
+      else next.add(cat);
+      return next;
+    });
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -333,15 +371,19 @@ export default function DealsPage({
   ];
 
   const activeStoreLabel =
-    activeStore === "Alla" ? "Alla butiker" : formatStoreName(activeStore);
+    activeStores.size === 0
+      ? "Alla butiker"
+      : activeStores.size === 1
+        ? formatStoreName(Array.from(activeStores)[0]!)
+        : storeFilterLabel;
   const h1 =
     seoTitle ||
-    (activeStore === "Alla" ? "Deals från alla butiker" : `Deals från ${activeStoreLabel}`);
+    (activeStores.size === 0 ? "Deals från alla butiker" : `Deals från ${activeStoreLabel}`);
   const desc =
     seoDescription ||
-    (activeStore === "Alla"
+    (activeStores.size === 0
       ? "Hitta de bästa erbjudandena från svenska butiker. Filtrera på butik, kategori och sortera efter rabatt eller pris."
-      : `Se de bästa dealsen från ${activeStoreLabel}. Filtrera på underkategorier för att hitta rätt produkt snabbt.`);
+      : `Se de bästa dealsen från ${activeStoreLabel}. Välj en eller flera kategorier för att snabbt hitta rätt.`);
 
   return (
     <div style={{ minHeight: "100vh", background: "#faf8ff" }}>
@@ -524,12 +566,13 @@ export default function DealsPage({
                 emoji: "🏪",
                 color: "#a855f7",
               };
-              const isActive = activeStore === store;
+              const isActive =
+                store === "Alla" ? activeStores.size === 0 : activeStores.has(store);
               return (
                 <button
                   key={store}
                   className="store-btn"
-                  onClick={() => setActiveStore(store)}
+                  onClick={() => toggleStore(store)}
                   style={{
                     background: isActive
                       ? `linear-gradient(135deg, ${config.color}, ${config.color}dd)`
@@ -546,7 +589,7 @@ export default function DealsPage({
           </div>
         </div>
 
-        {activeStore !== "Alla" && storeCategories.length > 0 && (
+        {storeCategories.length > 0 && (
           <div style={{ borderBottom: "1px solid #ede9fe" }}>
             <div
               className="store-scroll"
@@ -562,12 +605,13 @@ export default function DealsPage({
               }}
             >
               {["Alla", ...storeCategories.map((c) => c.category)].map((cat) => {
-                const isActive = activeCategory === cat;
+                const isActive =
+                  cat === "Alla" ? activeCategories.size === 0 : activeCategories.has(cat);
                 return (
                   <button
                     key={cat}
                     className={`filter-option ${isActive ? "active" : ""}`}
-                    onClick={() => setActiveCategory(cat)}
+                    onClick={() => toggleCategory(cat)}
                     style={{
                       display: "inline-flex",
                       alignItems: "center",
