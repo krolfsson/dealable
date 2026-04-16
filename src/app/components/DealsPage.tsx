@@ -156,7 +156,15 @@ export default function DealsPage({
       const firstRes = await fetch("/cache/deals-0.json");
       if (!firstRes.ok) throw new Error("Kunde inte hämta deals");
       const firstChunk = (await firstRes.json()) as Deal[];
-      setAllDeals(firstChunk);
+      // Hard client-side dedupe (defense-in-depth)
+      const seenFirst = new Set<string>();
+      const uniqueFirst = firstChunk.filter((d) => {
+        const k = `${d.store}|${d.url || ""}|${d.id}`;
+        if (seenFirst.has(k)) return false;
+        seenFirst.add(k);
+        return true;
+      });
+      setAllDeals(uniqueFirst);
       setError(null);
       setLoading(false);
 
@@ -174,7 +182,18 @@ export default function DealsPage({
           );
         }
         await Promise.all(fetches);
-        setAllDeals((prev) => [...prev, ...remaining]);
+        setAllDeals((prev) => {
+          const merged = [...prev, ...remaining];
+          const seen = new Set<string>();
+          const unique: Deal[] = [];
+          for (const d of merged) {
+            const k = `${d.store}|${d.url || ""}|${d.id}`;
+            if (seen.has(k)) continue;
+            seen.add(k);
+            unique.push(d);
+          }
+          return unique;
+        });
       }
     } catch (err) {
       console.error("Failed to load deals:", err);
@@ -635,7 +654,7 @@ export default function DealsPage({
             };
             return (
               <a
-                key={deal.id}
+                key={`${deal.store}|${deal.id}`}
                 href={deal.url}
                 target="_blank"
                 rel="noopener noreferrer"

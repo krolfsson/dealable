@@ -58,12 +58,16 @@ function maxPercentFromMarketingFields(row: Record<string, string | undefined>):
 }
 
 function stableIntFromKey(s: string): number {
-  let h = 2166136261 >>> 0;
+  // 64-bit FNV-1a reduced to a safe JS integer (<= 2^53-1)
+  let h = 14695981039346656037n;
+  const prime = 1099511628211n;
   for (let i = 0; i < s.length; i++) {
-    h ^= s.charCodeAt(i);
-    h = Math.imul(h, 16777619) >>> 0;
+    h ^= BigInt(s.charCodeAt(i));
+    h = (h * prime) & ((1n << 64n) - 1n);
   }
-  return h === 0 ? 1 : h;
+  const maxSafe = 9007199254740991n; // Number.MAX_SAFE_INTEGER
+  const v = h % maxSafe;
+  return Number(v === 0n ? 1n : v);
 }
 
 function dealDedupeKey(row: Record<string, string | undefined>, storeName: string): string {
