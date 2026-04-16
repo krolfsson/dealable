@@ -27,6 +27,10 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "**.awin1.com",
       },
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com",
+      },
       // Jotex / Ellos (Awin feed can expose direct asset URLs)
       {
         protocol: "https",

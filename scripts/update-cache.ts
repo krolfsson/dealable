@@ -87,6 +87,8 @@ function normalizeStoreName(raw: string): string {
 function normalizeImageUrl(raw: string | undefined): string {
   const s = String(raw || "").trim();
   if (!s) return "";
+  // Awin/Productserve placeholder
+  if (s.includes("productserve.com/noimage.gif")) return "";
   if (s.startsWith("//")) return `https:${s}`;
   if (s.startsWith("http://") || s.startsWith("https://")) return s;
   return "";

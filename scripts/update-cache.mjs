@@ -80,6 +80,7 @@ function normalizeStoreName(raw) {
 function normalizeImageUrl(raw) {
   const s = String(raw || "").trim();
   if (!s) return "";
+  if (s.includes("productserve.com/noimage.gif")) return "";
   if (s.startsWith("//")) return `https:${s}`;
   if (s.startsWith("http://") || s.startsWith("https://")) return s;
   return "";

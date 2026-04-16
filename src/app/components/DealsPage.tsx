@@ -27,7 +27,7 @@ function buildImageAttemptList(deal: Deal): string[] {
   const seen = new Set<string>();
 
   for (const url of raw) {
-    const hi = getHiResImage(url);
+    const hi = getHiResImage(url, 1200, 1200);
     for (const candidate of hi === url ? [url] : [hi, url]) {
       if (!candidate || seen.has(candidate)) continue;
       seen.add(candidate);

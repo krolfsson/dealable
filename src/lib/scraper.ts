@@ -59,8 +59,17 @@ export function parseDiscountValue(discount: string): number {
  * Upgrade Productserve image URLs to higher resolution
  */
 export function getHiResImage(url: string, w = 640, h = 640): string {
-  if (!url || !url.includes("productserve.com")) return url;
-  return url
-    .replace(/([?&])w=\d+/, `$1w=${w}`)
-    .replace(/([?&])h=\d+/, `$1h=${h}`);
+  if (!url) return url;
+  // Productserve proxy supports w/h
+  if (url.includes("productserve.com")) {
+    return url
+      .replace(/([?&])w=\d+/, `$1w=${w}`)
+      .replace(/([?&])h=\d+/, `$1h=${h}`);
+  }
+  // Ellos/Jotex assets support a single w= param
+  if (url.includes("ellosgroup.com")) {
+    if (/[?&]w=\d+/.test(url)) return url.replace(/([?&])w=\d+/, `$1w=${w}`);
+    return url + (url.includes("?") ? "&" : "?") + `w=${w}`;
+  }
+  return url;
 }
