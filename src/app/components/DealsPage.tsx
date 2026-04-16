@@ -11,6 +11,7 @@ const STORE_CONFIG: Record<string, { emoji: string; color: string }> = {
   "Apotek Hjärtat SE": { emoji: "💊", color: "#f97316" },
   "Diamond Smile SE": { emoji: "✨", color: "#38bdf8" },
   "Dyson SE": { emoji: "🌪️", color: "#64748b" },
+  "Homeroom SE": { emoji: "🏠", color: "#0ea5e9" },
   "Jotex SE": { emoji: "🛋️", color: "#ea580c" },
   "Navimow EU": { emoji: "🌱", color: "#16a34a" },
   "Padel Market": { emoji: "🏸", color: "#7c3aed" },
