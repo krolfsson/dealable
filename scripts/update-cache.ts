@@ -243,6 +243,27 @@ function mapCategory(
     return "Hem";
   }
 
+  if (store.includes("homeroom")) {
+    const root = (merchantCategory || "").split(">")[0]?.trim().toLowerCase() || "";
+    if (root.includes("möbler")) return "Möbler";
+    if (root.includes("belysning")) return "Belysning";
+    if (root.includes("mattor")) return "Mattor";
+    if (root.includes("dekoration")) return "Inredning";
+    if (root.includes("textilier")) return "Inredning";
+    if (root.includes("kök")) return "Kök & dukning";
+    if (root.includes("utemöbler") || root.includes("trädgård")) return "Trädgård";
+    if (root.includes("barnrum")) return "Barn & baby";
+
+    // Fallback to keyword inference if root is missing
+    if (cat.includes("möbler")) return "Möbler";
+    if (cat.includes("belysning") || name.includes("lampa")) return "Belysning";
+    if (cat.includes("mattor") || name.includes("matta")) return "Mattor";
+    if (cat.includes("kök") || cat.includes("hushåll")) return "Kök & dukning";
+    if (cat.includes("trädgård") || cat.includes("utemöbler")) return "Trädgård";
+    if (cat.includes("textil")) return "Inredning";
+    return "Hem";
+  }
+
   if (store.includes("diamond smile")) return "Hälsa";
   if (store.includes("navimow")) return "Trädgård";
 
