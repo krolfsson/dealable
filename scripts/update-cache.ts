@@ -58,16 +58,24 @@ function maxPercentFromMarketingFields(row: Record<string, string | undefined>):
 }
 
 function stableIntFromKey(s: string): number {
-  // 64-bit FNV-1a reduced to a safe JS integer (<= 2^53-1)
-  let h = 14695981039346656037n;
-  const prime = 1099511628211n;
+  // 53-bit stable hash without BigInt (safe for JS number + TS < ES2020)
+  // Source: cyrb53-style hash (uses 32-bit imul mixing)
+  let h1 = 0xdeadbeef ^ 0;
+  let h2 = 0x41c6ce57 ^ 0;
   for (let i = 0; i < s.length; i++) {
-    h ^= BigInt(s.charCodeAt(i));
-    h = (h * prime) & ((1n << 64n) - 1n);
+    const ch = s.charCodeAt(i);
+    h1 = Math.imul(h1 ^ ch, 2654435761);
+    h2 = Math.imul(h2 ^ ch, 1597334677);
   }
-  const maxSafe = 9007199254740991n; // Number.MAX_SAFE_INTEGER
-  const v = h % maxSafe;
-  return Number(v === 0n ? 1n : v);
+  h1 =
+    Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^
+    Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+  h2 =
+    Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^
+    Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+  // 21 bits from h2 + 32 bits from h1 => 53-bit integer
+  const out = (h2 & 0x1fffff) * 4294967296 + (h1 >>> 0);
+  return out === 0 ? 1 : out;
 }
 
 function dealDedupeKey(row: Record<string, string | undefined>, storeName: string): string {
