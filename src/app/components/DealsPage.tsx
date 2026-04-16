@@ -49,6 +49,9 @@ function DealCardImage({
   const [idx, setIdx] = useState(0);
 
   const src = attempts[idx] || "";
+  const unoptimized =
+    src.includes("productserve.com") || src.includes("res.cloudinary.com") || src.includes("ellosgroup.com");
+  const referrerPolicy = src.includes("productserve.com") ? "no-referrer" : undefined;
 
   if (!src) {
     return (
@@ -77,8 +80,8 @@ function DealCardImage({
       fill
       sizes="(max-width: 640px) 45vw, 280px"
       quality={75}
-      unoptimized={src.includes("productserve.com")}
-      referrerPolicy="no-referrer"
+      unoptimized={unoptimized}
+      referrerPolicy={referrerPolicy}
       style={{ objectFit: "cover" }}
       onError={() => {
         setIdx((i) => (i + 1 < attempts.length ? i + 1 : i));
