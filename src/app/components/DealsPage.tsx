@@ -119,6 +119,14 @@ export default function DealsPage({
     }
   }, []);
 
+  const [toast, setToast] = useState<{ message: string } | null>(null);
+  const toastTimer = useRef<NodeJS.Timeout | null>(null);
+  const showToast = useCallback((message: string) => {
+    setToast({ message });
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+    toastTimer.current = setTimeout(() => setToast(null), 1800);
+  }, []);
+
   const [allDeals, setAllDeals] = useState<Deal[]>([]);
   const [stores, setStores] = useState<string[]>([]);
   const [lastUpdated, setLastUpdated] = useState("");
@@ -681,6 +689,33 @@ export default function DealsPage({
         )}
       </header>
 
+      {toast && (
+        <div
+          style={{
+            position: "fixed",
+            left: "50%",
+            bottom: 18,
+            transform: "translateX(-50%)",
+            zIndex: 1000,
+            background: "rgba(17, 24, 39, 0.92)",
+            color: "#fff",
+            padding: "10px 14px",
+            borderRadius: 999,
+            fontSize: 13,
+            fontWeight: 600,
+            boxShadow: "0 10px 30px rgba(0,0,0,0.18)",
+            maxWidth: "90vw",
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+          }}
+          role="status"
+          aria-live="polite"
+        >
+          {toast.message}
+        </div>
+      )}
+
       <section style={{ maxWidth: 1100, margin: "0 auto", padding: "18px 20px 8px" }}>
         <h1 style={{ margin: 0, fontSize: 22, color: "#1e1b4b", fontWeight: 800 }}>
           {h1}
@@ -748,6 +783,7 @@ export default function DealsPage({
                     discount: deal.discount,
                     price: deal.price,
                   });
+                  showToast(`Öppnar deal hos ${formatStoreName(deal.store)}…`);
                 }}
               >
                 <article
@@ -860,6 +896,25 @@ export default function DealsPage({
                         )}
                       </div>
                     )}
+                    <div style={{ marginTop: 10, display: "flex", alignItems: "center", gap: 8 }}>
+                      <span
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: 8,
+                          padding: "7px 10px",
+                          borderRadius: 999,
+                          background: "linear-gradient(135deg, rgba(168, 85, 247, 0.14), rgba(236, 72, 153, 0.12))",
+                          border: "1px solid rgba(168, 85, 247, 0.22)",
+                          color: "#6d28d9",
+                          fontSize: 12,
+                          fontWeight: 700,
+                          width: "fit-content",
+                        }}
+                      >
+                        Öppna deal <span aria-hidden="true">→</span>
+                      </span>
+                    </div>
                     <p
                       className="card-time"
                       style={{
