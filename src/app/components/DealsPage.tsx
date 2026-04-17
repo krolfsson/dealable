@@ -106,6 +106,19 @@ export default function DealsPage({
   seoTitle?: string;
   seoDescription?: string;
 }) {
+  const track = useCallback((eventName: string, params?: Record<string, unknown>) => {
+    try {
+      // GA4 (loaded after cookie consent)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const gtag = (window as any)?.gtag as undefined | ((...args: any[]) => void);
+      if (typeof gtag === "function") {
+        gtag("event", eventName, params || {});
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
   const [allDeals, setAllDeals] = useState<Deal[]>([]);
   const [stores, setStores] = useState<string[]>([]);
   const [lastUpdated, setLastUpdated] = useState("");
@@ -296,6 +309,17 @@ export default function DealsPage({
       else next.add(store);
       return next;
     });
+
+    track("filter_store_toggle", {
+      store: store === "Alla" ? "Alla" : store,
+      action:
+        store === "Alla"
+          ? "reset_all"
+          : activeStores.has(store)
+            ? "remove"
+            : "add",
+      selected_store_count: store === "Alla" ? 0 : activeStores.size + (activeStores.has(store) ? -1 : 1),
+    });
   }, []);
 
   const toggleCategory = useCallback((cat: string) => {
@@ -305,6 +329,17 @@ export default function DealsPage({
       if (next.has(cat)) next.delete(cat);
       else next.add(cat);
       return next;
+    });
+
+    track("filter_category_toggle", {
+      category: cat === "Alla" ? "Alla" : cat,
+      action:
+        cat === "Alla"
+          ? "reset_all"
+          : activeCategories.has(cat)
+            ? "remove"
+            : "add",
+      selected_category_count: cat === "Alla" ? 0 : activeCategories.size + (activeCategories.has(cat) ? -1 : 1),
     });
   }, []);
 
@@ -704,6 +739,16 @@ export default function DealsPage({
                 target="_blank"
                 rel="noopener noreferrer"
                 className="deal-link"
+                onClick={() => {
+                  track("outbound_click", {
+                    link_url: deal.url,
+                    store: deal.store,
+                    category: deal.category,
+                    deal_id: deal.id,
+                    discount: deal.discount,
+                    price: deal.price,
+                  });
+                }}
               >
                 <article
                   className="deal-card"
