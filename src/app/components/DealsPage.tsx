@@ -122,9 +122,7 @@ export default function DealsPage({
   const [allDeals, setAllDeals] = useState<Deal[]>([]);
   const [stores, setStores] = useState<string[]>([]);
   const [lastUpdated, setLastUpdated] = useState("");
-  const [activeStores, setActiveStores] = useState<Set<string>>(
-    () => new Set(initialStore && initialStore !== "Alla" ? [initialStore] : [])
-  );
+  const [activeStore, setActiveStore] = useState<string>(initialStore || "Alla");
   const [activeCategories, setActiveCategories] = useState<Set<string>>(
     () => new Set(initialCategory && initialCategory !== "Alla" ? [initialCategory] : [])
   );
@@ -224,19 +222,11 @@ export default function DealsPage({
     loadAllDeals();
   }, [loadAllDeals]);
 
-  const storeFilterLabel =
-    activeStores.size === 0 ? "Alla butiker" : `${activeStores.size} butik${activeStores.size === 1 ? "" : "er"}`;
-
-  const selectedStoresOrAll = useMemo(() => {
-    if (activeStores.size === 0) return null; // null means "all"
-    return new Set(activeStores);
-  }, [activeStores]);
-
-  // Categories for the selected stores (union, dynamic)
+  // Categories for the selected store (or all stores if "Alla")
   const storeCategories = useMemo(() => {
     const counts = new Map<string, number>();
     for (const d of allDeals) {
-      if (selectedStoresOrAll && !selectedStoresOrAll.has(d.store)) continue;
+      if (activeStore !== "Alla" && d.store !== activeStore) continue;
       const cat = (d.category || "").trim();
       if (!cat) continue;
       counts.set(cat, (counts.get(cat) || 0) + 1);
@@ -244,14 +234,30 @@ export default function DealsPage({
     return Array.from(counts.entries())
       .sort((a, b) => a[0].localeCompare(b[0], "sv"))
       .map(([category, count]) => ({ category, count }));
-  }, [selectedStoresOrAll, allDeals]);
+  }, [activeStore, allDeals]);
+
+  // Prune selected categories that don't exist for the current store
+  useEffect(() => {
+    if (activeCategories.size === 0) return;
+    const allowed = new Set(storeCategories.map((c) => c.category));
+    setActiveCategories((prev) => {
+      let changed = false;
+      const next = new Set<string>();
+      for (const c of prev) {
+        if (allowed.has(c)) next.add(c);
+        else changed = true;
+      }
+      return changed ? next : prev;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeStore, storeCategories.length]);
 
   // Client-side filter + sort
   const filteredDeals = useMemo(() => {
     let result = allDeals;
 
-    if (selectedStoresOrAll) {
-      result = result.filter((d) => selectedStoresOrAll.has(d.store));
+    if (activeStore !== "Alla") {
+      result = result.filter((d) => d.store === activeStore);
     }
 
     if (activeCategories.size > 0) {
@@ -281,19 +287,19 @@ export default function DealsPage({
     }
 
     return sorted;
-  }, [allDeals, selectedStoresOrAll, activeCategories, debouncedSearch, sortBy]);
+  }, [allDeals, activeStore, activeCategories, debouncedSearch, sortBy]);
 
   const visibleDeals = filteredDeals.slice(0, visibleCount);
   const hasMore = visibleCount < filteredDeals.length;
 
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);
-  }, [activeStores, activeCategories, debouncedSearch, sortBy]);
+  }, [activeStore, activeCategories, debouncedSearch, sortBy]);
 
   // If the page is store/category-specific (SEO routes), keep initial selection stable
   useEffect(() => {
     if (initialStore && initialStore !== "Alla") {
-      setActiveStores(new Set([initialStore]));
+      setActiveStore(initialStore);
     }
     if (initialCategory && initialCategory !== "Alla") {
       setActiveCategories(new Set([initialCategory]));
@@ -302,25 +308,14 @@ export default function DealsPage({
   }, []);
 
   const toggleStore = useCallback((store: string) => {
-    setActiveStores((prev) => {
-      const next = new Set(prev);
-      if (store === "Alla") return new Set();
-      if (next.has(store)) next.delete(store);
-      else next.add(store);
-      return next;
-    });
+    setActiveStore(store);
 
     track("filter_store_toggle", {
       store: store === "Alla" ? "Alla" : store,
-      action:
-        store === "Alla"
-          ? "reset_all"
-          : activeStores.has(store)
-            ? "remove"
-            : "add",
-      selected_store_count: store === "Alla" ? 0 : activeStores.size + (activeStores.has(store) ? -1 : 1),
+      action: store === "Alla" ? "reset_all" : "set",
+      selected_store_count: store === "Alla" ? 0 : 1,
     });
-  }, []);
+  }, [track]);
 
   const toggleCategory = useCallback((cat: string) => {
     setActiveCategories((prev) => {
@@ -406,17 +401,13 @@ export default function DealsPage({
   ];
 
   const activeStoreLabel =
-    activeStores.size === 0
-      ? "Alla butiker"
-      : activeStores.size === 1
-        ? formatStoreName(Array.from(activeStores)[0]!)
-        : storeFilterLabel;
+    activeStore === "Alla" ? "Alla butiker" : formatStoreName(activeStore);
   const h1 =
     seoTitle ||
-    (activeStores.size === 0 ? "Deals från alla butiker" : `Deals från ${activeStoreLabel}`);
+    (activeStore === "Alla" ? "Deals från alla butiker" : `Deals från ${activeStoreLabel}`);
   const desc =
     seoDescription ||
-    (activeStores.size === 0
+    (activeStore === "Alla"
       ? "Hitta de bästa erbjudandena från svenska butiker. Filtrera på butik, kategori och sortera efter rabatt eller pris."
       : `Se de bästa dealsen från ${activeStoreLabel}. Välj en eller flera kategorier för att snabbt hitta rätt.`);
 
@@ -601,8 +592,7 @@ export default function DealsPage({
                 emoji: "🏪",
                 color: "#a855f7",
               };
-              const isActive =
-                store === "Alla" ? activeStores.size === 0 : activeStores.has(store);
+              const isActive = activeStore === store;
               return (
                 <button
                   key={store}
