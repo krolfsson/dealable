@@ -40,3 +40,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 .env*.local
+
+# local/generated cache (produced at build time)
+/public/cache/
+**/*.icloud
