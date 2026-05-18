@@ -432,11 +432,12 @@ export default function DealsPage({
         }
         .store-btn {
           font-family: 'Quicksand', sans-serif !important; font-weight: 600 !important;
-          cursor: pointer; border: none; border-radius: 100px;
-          padding: 10px 18px; font-size: 14px;
-          display: flex; align-items: center; gap: 6px;
+          cursor: pointer; border: 1.5px solid transparent; border-radius: 100px;
+          padding: 4px 10px; font-size: 14px;
+          display: inline-flex; align-items: center; gap: 4px;
           white-space: nowrap; flex-shrink: 0; transition: all 0.2s;
         }
+        .store-btn .store-emoji { font-size: 12px; line-height: 1; }
         @media (hover: hover) and (pointer: fine) {
           .deal-card:hover {
             transform: scale(1.05);
@@ -501,7 +502,8 @@ export default function DealsPage({
           .mobile-price-wrap { flex-direction: row !important; flex-wrap: wrap; align-items: baseline; gap: 5px !important; }
           .mobile-nav-title { font-size: 17px !important; }
           .mobile-search { font-size: 12px !important; padding: 6px 12px !important; }
-          .store-btn { font-size: 12px !important; padding: 8px 12px !important; }
+          .store-btn { font-size: 11px !important; padding: 3px 7px !important; }
+          .store-btn .store-emoji { font-size: 11px !important; }
           .store-scroll { justify-content: flex-start !important; flex-wrap: nowrap !important; }
           .sort-bar-count { font-size: 11px !important; }
           .sort-option { font-size: 11px !important; padding: 3px 7px !important; white-space: nowrap !important; }
@@ -582,11 +584,12 @@ export default function DealsPage({
             style={{
               maxWidth: 1100,
               margin: "0 auto",
-              padding: "12px 20px",
+              padding: "10px 20px",
               display: "flex",
               gap: 8,
               overflowX: "auto",
               flexWrap: "nowrap",
+              alignItems: "center",
             }}
           >
             {storeButtons.map((store) => {
@@ -608,7 +611,7 @@ export default function DealsPage({
                     boxShadow: isActive ? `0 4px 15px ${config.color}40` : "none",
                   }}
                 >
-                  <span>{config.emoji}</span>
+                  <span className="store-emoji">{config.emoji}</span>
                   <span>{store === "Alla" ? "Alla butiker" : formatStoreName(store)}</span>
                 </button>
               );
