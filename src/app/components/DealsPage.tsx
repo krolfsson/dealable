@@ -4,12 +4,10 @@ import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import type { Deal } from "@/lib/scraper";
 import { timeAgo, parseDiscountValue } from "@/lib/scraper";
 import { KNOWN_STORES, formatStoreName } from "@/lib/seo";
-import { buildFeedItems } from "@/lib/deal-ui";
 import FeaturedDealBanners from "@/app/components/FeaturedDealBanners";
 import DealCard from "@/app/components/deals/DealCard";
 import DealSearch from "@/app/components/deals/DealSearch";
 import DealSkeleton from "@/app/components/deals/DealSkeleton";
-import FeedInsert from "@/app/components/deals/FeedInsert";
 import "@/app/components/deals/deals-page.css";
 
 const STORE_CONFIG: Record<string, { emoji: string; color: string }> = {
@@ -229,7 +227,6 @@ export default function DealsPage({
 
   const visibleDeals = filteredDeals.slice(0, visibleCount);
   const hasMore = visibleCount < filteredDeals.length;
-  const feedItems = useMemo(() => buildFeedItems(visibleDeals), [visibleDeals]);
 
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);
@@ -631,39 +628,27 @@ export default function DealsPage({
           <DealSkeleton count={8} />
         ) : (
         <div className="deal-grid">
-          {feedItems.map((item) => {
-            const storeConfig = STORE_CONFIG[item.deal.store] || {
+          {visibleDeals.map((deal) => {
+            const storeConfig = STORE_CONFIG[deal.store] || {
               emoji: "🏪",
               color: "#a855f7",
             };
-            const trackClick = () =>
-              track("outbound_click", {
-                link_url: item.deal.url,
-                store: item.deal.store,
-                category: item.deal.category,
-                deal_id: item.deal.id,
-                discount: item.deal.discount,
-                price: item.deal.price,
-              });
-
-            if (item.kind === "insert") {
-              return (
-                <FeedInsert
-                  key={`insert-${item.variant}-${item.deal.id}`}
-                  deal={item.deal}
-                  variant={item.variant}
-                  onClick={trackClick}
-                />
-              );
-            }
-
             return (
               <DealCard
-                key={`${item.deal.store}|${item.deal.id}`}
-                deal={item.deal}
+                key={`${deal.store}|${deal.id}`}
+                deal={deal}
                 storeEmoji={storeConfig.emoji}
                 feedUpdatedAt={lastUpdated}
-                onOutboundClick={trackClick}
+                onOutboundClick={() =>
+                  track("outbound_click", {
+                    link_url: deal.url,
+                    store: deal.store,
+                    category: deal.category,
+                    deal_id: deal.id,
+                    discount: deal.discount,
+                    price: deal.price,
+                  })
+                }
               />
             );
           })}
