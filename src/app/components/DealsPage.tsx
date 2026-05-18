@@ -14,14 +14,13 @@ const STORE_CONFIG: Record<string, { emoji: string; color: string }> = {
   "Dyson SE": { emoji: "🌪️", color: "#64748b" },
   "Homeroom SE": { emoji: "🏠", color: "#0ea5e9" },
   "Jotex SE": { emoji: "🛋️", color: "#ea580c" },
-  "Navimow EU": { emoji: "🌱", color: "#16a34a" },
   "Padel Market": { emoji: "🏸", color: "#7c3aed" },
   "Rugvista SE": { emoji: "🧶", color: "#92400e" },
   "Samsung SE": { emoji: "📱", color: "#1d4ed8" },
   "Nelly SE": { emoji: "👗", color: "#ec4899" },
-  "Ninja SE": { emoji: "🥷", color: "#0f172a" },
   "NLY Man SE": { emoji: "👔", color: "#3b82f6" },
   "Outnorth SE": { emoji: "⛰️", color: "#059669" },
+  "SharkNinja SE": { emoji: "🦈", color: "#0f172a" },
   "Xiaomi SE": { emoji: "📱", color: "#ef4444" },
 };
 

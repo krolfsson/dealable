@@ -103,7 +103,6 @@ function normalizeTitleKey(title: string): string {
 function normalizeStoreName(raw: string): string {
   const s = String(raw || "").trim();
   if (!s) return s;
-  if (s.toLowerCase().startsWith("ninja se")) return "Ninja SE";
   return s;
 }
 
@@ -258,7 +257,7 @@ function mapCategory(
     return "Kläder";
   }
 
-  if (store.includes("ninja") || store.includes("sharkninja")) {
+  if (store.includes("sharkninja")) {
     if (name.includes("airfryer") || name.includes("air fryer") || name.includes("fritös")) return "Kök & dukning";
     if (name.includes("grill") || name.includes("bbq")) return "Kök & dukning";
     if (name.includes("blender") || name.includes("mixer") || name.includes("matbered")) return "Kök & dukning";
@@ -288,7 +287,6 @@ function mapCategory(
   }
 
   if (store.includes("diamond smile")) return "Hälsa";
-  if (store.includes("navimow")) return "Trädgård";
 
   if (store.includes("outnorth")) {
     if (cat.includes("dunjack") || cat.includes("jacka") || cat.includes("softshell") || cat.includes("skaljack") || cat.includes("fleece") || name.includes("jacka")) return "Jackor";
@@ -345,10 +343,8 @@ async function main() {
       // Visa även när Awin-rabatten saknar/under 20 % (samma som Jotex)
       const skipMinDiscount =
         storeLower.includes("jotex") ||
-        storeLower.includes("ninja") ||
         storeLower.includes("sharkninja") ||
         storeLower.includes("diamond smile") ||
-        storeLower.includes("navimow") ||
         storeLower.includes("rugvista") ||
         storeLower.includes("samsung");
 

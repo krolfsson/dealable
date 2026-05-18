@@ -11,31 +11,33 @@ export type FeaturedBanner = {
   gradientTo: string;
 };
 
-/** Uppdatera rubrik, underrubrik, emoji och länk när kampanjerna är klara. */
 export const FEATURED_BANNERS: FeaturedBanner[] = [
   {
     id: "featured-1",
-    emoji: "✨",
-    title: "Rubrik kommer snart",
-    subtitle: "Underrubrik kommer snart",
-    gradientFrom: "#a855f7",
-    gradientTo: "#7c3aed",
+    emoji: "🛋️",
+    title: "Uteveckor hos Jotex",
+    subtitle: "Upp till 30% rabatt!",
+    href: "https://www.awin1.com/cread.php?awinmid=9961&awinaffid=2845402&campaign=&ued=https%3A%2F%2Fwww.jotex.se%2F",
+    gradientFrom: "#ea580c",
+    gradientTo: "#c2410c",
   },
   {
     id: "featured-2",
-    emoji: "🏷️",
-    title: "Rubrik kommer snart",
-    subtitle: "Underrubrik kommer snart",
-    gradientFrom: "#ec4899",
-    gradientTo: "#db2777",
+    emoji: "⛰️",
+    title: "Outdoor weeks hos Outnorth",
+    subtitle: "Upp till 25%!",
+    href: "https://www.awin1.com/cread.php?awinmid=18619&awinaffid=2845402&campaign=&ued=https%3A%2F%2Fwww.outnorth.com%2Fse%2Fkampanjer%2Foutdoor-weeks",
+    gradientFrom: "#059669",
+    gradientTo: "#047857",
   },
   {
     id: "featured-3",
-    emoji: "🔥",
-    title: "Rubrik kommer snart",
-    subtitle: "Underrubrik kommer snart",
-    gradientFrom: "#f43f5e",
-    gradientTo: "#e11d48",
+    emoji: "🎁",
+    title: "Bli Outnorth Member",
+    subtitle: "Få 25% på ett köp!",
+    href: "https://www.awin1.com/cread.php?awinmid=18619&awinaffid=2845402&campaign=&ued=https%3A%2F%2Fwww.outnorth.com%2Fse%2Fkampanjer%2F25-pa-ett-kop",
+    gradientFrom: "#0ea5e9",
+    gradientTo: "#0284c7",
   },
 ];
 
