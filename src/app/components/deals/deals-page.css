@@ -241,11 +241,18 @@
   box-shadow: 0 3px 12px rgba(168, 85, 247, 0.3);
 }
 
-/* Grid */
+/* Grid — mobile-first: always 2 columns on small screens */
 .deals-page .deal-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+@media (min-width: 900px) {
+  .deals-page .deal-grid {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 14px;
+  }
 }
 
 .deals-page .deal-link {
@@ -496,8 +503,15 @@
 /* Shimmer skeleton */
 .deals-page .skeleton-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+@media (min-width: 900px) {
+  .deals-page .skeleton-grid {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 14px;
+  }
 }
 
 .deals-page .skeleton-card {
@@ -604,40 +618,78 @@
   }
 }
 
-@media (max-width: 640px) {
-  .deals-page .deal-grid,
-  .deals-page .skeleton-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-  }
-
+@media (max-width: 899px) {
   .deals-page .deal-card {
     flex-direction: column;
-    border-radius: var(--radius-md);
+    border-radius: 12px;
   }
 
   .deals-page .deal-card .card-image {
     width: 100%;
     min-width: 0;
     min-height: 0;
-    aspect-ratio: 4/5;
+    aspect-ratio: 3 / 4;
   }
 
   .deals-page .deal-card .card-info {
     padding: 10px 10px 12px;
+    gap: 0;
+  }
+
+  .deals-page .card-store-line {
+    font-size: 9px;
   }
 
   .deals-page .card-title {
     font-size: 13px;
-    -webkit-line-clamp: 2;
+    font-weight: 600;
+    -webkit-line-clamp: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .deals-page .card-price-row {
+    margin-top: 6px;
+    gap: 5px;
   }
 
   .deals-page .card-price {
-    font-size: 17px;
+    font-size: 15px;
   }
 
   .deals-page .card-original {
     font-size: 11px;
+  }
+
+  .deals-page .card-badge {
+    top: 6px;
+    left: 6px;
+    font-size: 10px;
+    padding: 2px 7px;
+  }
+
+  .deals-page .card-trending {
+    top: 6px;
+    right: 6px;
+    font-size: 9px;
+    padding: 2px 6px;
+  }
+
+  /* Keep cards compact — trust details on desktop only */
+  .deals-page .card-meta {
+    display: none;
+  }
+
+  .deals-page .skeleton-card {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .deals-page .skeleton-card > .skeleton-shimmer:first-child {
+    width: 100% !important;
+    min-width: 0 !important;
+    aspect-ratio: 3 / 4;
   }
 
   .deals-page .search-wrap {
