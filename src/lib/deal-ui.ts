@@ -28,7 +28,6 @@ export type DealTrustSignals = {
   updatedLabel: string;
   urgency: "few_left" | "ending_soon" | null;
   trending: boolean;
-  clickCount: number;
 };
 
 export function getDealTrustSignals(
@@ -42,8 +41,6 @@ export function getDealTrustSignals(
   let urgency: DealTrustSignals["urgency"] = null;
   if (h % 19 === 0) urgency = "few_left";
   else if (discount >= 25 && h % 13 === 0) urgency = "ending_soon";
-
-  const clickCount = 8 + (h % 76);
 
   let verifiedToday = false;
   let updatedLabel = "";
@@ -65,7 +62,6 @@ export function getDealTrustSignals(
     updatedLabel,
     urgency,
     trending,
-    clickCount,
   };
 }
 

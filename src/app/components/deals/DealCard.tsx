@@ -109,7 +109,6 @@ function TrustMeta({
       {signals.urgency === "ending_soon" && (
         <span className="card-pill card-pill--urgent">Slutar snart</span>
       )}
-      <span className="card-social">{signals.clickCount} klick idag</span>
     </div>
   );
 }
