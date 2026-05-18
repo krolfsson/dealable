@@ -5,6 +5,7 @@ import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import type { Deal } from "@/lib/scraper";
 import { timeAgo, formatPrice, parseDiscountValue, getHiResImage } from "@/lib/scraper";
 import { KNOWN_STORES, formatStoreName } from "@/lib/seo";
+import FeaturedDealBanners from "@/app/components/FeaturedDealBanners";
 
 const STORE_CONFIG: Record<string, { emoji: string; color: string }> = {
   Alla: { emoji: "✨", color: "#a855f7" },
@@ -476,6 +477,60 @@ export default function DealsPage({
         .search-input:focus { border-color: #c084fc !important; box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.15); }
         .store-scroll { -ms-overflow-style: none; scrollbar-width: none; }
         .store-scroll::-webkit-scrollbar { display: none; }
+        .featured-banners-section {
+          max-width: 1100px; margin: 0 auto; padding: 4px 20px 14px;
+        }
+        .featured-banners-grid {
+          display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+        }
+        .featured-banner {
+          font-family: 'Quicksand', sans-serif;
+          display: flex; align-items: center; gap: 10px;
+          padding: 12px 14px; min-height: 76px; border-radius: 14px;
+          text-decoration: none; color: #fff;
+          box-shadow: 0 4px 18px rgba(168, 85, 247, 0.16);
+          transition: transform 0.2s ease, box-shadow 0.2s ease;
+          position: relative; overflow: hidden;
+        }
+        .featured-banner::before {
+          content: ''; position: absolute; inset: 0;
+          background: radial-gradient(circle at 100% 0%, rgba(255,255,255,0.22), transparent 58%);
+          pointer-events: none;
+        }
+        .featured-banner--placeholder { cursor: default; }
+        @media (hover: hover) and (pointer: fine) {
+          a.featured-banner:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 26px rgba(168, 85, 247, 0.26);
+          }
+        }
+        .featured-banner-emoji {
+          flex-shrink: 0; width: 40px; height: 40px; border-radius: 12px;
+          background: rgba(255,255,255,0.22);
+          display: flex; align-items: center; justify-content: center;
+          font-size: 20px; position: relative; z-index: 1;
+        }
+        .featured-banner-copy {
+          flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px;
+          position: relative; z-index: 1;
+        }
+        .featured-banner-kicker {
+          font-size: 10px; font-weight: 700; text-transform: uppercase;
+          letter-spacing: 0.06em; opacity: 0.92;
+        }
+        .featured-banner-title {
+          font-size: 14px; font-weight: 700; line-height: 1.2;
+          white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .featured-banner-subtitle {
+          font-size: 12px; font-weight: 500; opacity: 0.9; line-height: 1.25;
+          display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+        .featured-banner-chevron {
+          flex-shrink: 0; font-size: 18px; font-weight: 700; opacity: 0.88;
+          position: relative; z-index: 1;
+        }
         .update-dot { width: 6px; height: 6px; border-radius: 50%; background: #34d399; display: inline-block; animation: pulse 2s infinite; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
         .pull-indicator { position: fixed; top: 0; left: 50%; transform: translateX(-50%); z-index: 100; display: flex; align-items: center; justify-content: center; pointer-events: none; transition: opacity 0.2s; }
@@ -508,6 +563,13 @@ export default function DealsPage({
           .sort-bar-count { font-size: 11px !important; }
           .sort-option { font-size: 11px !important; padding: 3px 7px !important; white-space: nowrap !important; }
           .filter-option { font-size: 11px !important; padding: 3px 7px !important; white-space: nowrap !important; }
+          .featured-banners-section { padding: 2px 20px 10px !important; }
+          .featured-banners-grid { grid-template-columns: 1fr !important; gap: 8px !important; }
+          .featured-banner { min-height: 64px !important; padding: 10px 12px !important; gap: 8px !important; border-radius: 12px !important; }
+          .featured-banner-emoji { width: 34px !important; height: 34px !important; font-size: 17px !important; border-radius: 10px !important; }
+          .featured-banner-title { font-size: 13px !important; }
+          .featured-banner-subtitle { font-size: 11px !important; }
+          .featured-banner-chevron { font-size: 15px !important; }
         }
       `,
         }}
@@ -719,6 +781,8 @@ export default function DealsPage({
           )}
         </p>
       </section>
+
+      <FeaturedDealBanners />
 
       <section style={{ maxWidth: 1100, margin: "0 auto", padding: "12px 20px 80px" }}>
         <div className="deal-grid">
