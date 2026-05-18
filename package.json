@@ -7,7 +7,7 @@
     "build": "node scripts/update-cache.mjs && next build --webpack",
     "start": "next start",
     "lint": "eslint",
-    "scrape": "npx tsx src/lib/scrape-cli.ts",
+    "scrape": "npx tsx src/lib/scrape.cli.ts",
     "update-cache": "node scripts/update-cache.mjs"
   },
   "dependencies": {

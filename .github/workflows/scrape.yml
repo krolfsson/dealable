@@ -4,32 +4,34 @@ on:
   schedule:
     # 06:00 UTC = 08:00 svensk tid (CEST)
     - cron: "0 6 * * *"
-  workflow_dispatch: # Manuell trigger via GitHub UI
+  workflow_dispatch:
 
 jobs:
-  scrape:
+  refresh:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
+          cache: npm
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Run scraper
-        run: npx tsx src/lib/scraper.ts
+      - name: Verify Awin feed (update-cache)
+        run: npm run update-cache
 
-      - name: Commit & push updated deals
+      - name: Trigger Vercel production deploy
+        env:
+          DEPLOY_HOOK_URL: ${{ secrets.DEPLOY_HOOK_URL }}
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add public/cache/
-          if git diff --staged --quiet; then
-            echo "No changes to commit"
-          else
-            git commit -m "chore: daily deal update $(date -u +%Y-%m-%d)"
-            git push
+          if [ -z "$DEPLOY_HOOK_URL" ]; then
+            echo "::error::Saknar GitHub secret DEPLOY_HOOK_URL."
+            echo "Skapa en Deploy Hook i Vercel (Project → Settings → Git → Deploy Hooks)"
+            echo "och lägg URL:en som repository secret: DEPLOY_HOOK_URL"
+            exit 1
           fi
+          curl -fsS -X POST "$DEPLOY_HOOK_URL"
+          echo "Vercel deploy hook triggered — build kör update-cache och publicerar ny cache."
