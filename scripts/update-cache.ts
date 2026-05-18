@@ -367,7 +367,7 @@ async function main() {
         store: storeName,
         price: currentPrice,
         originalPrice: oldPrice > currentPrice ? oldPrice : 0,
-        discount: discount > 0 ? `-${Math.round(discount)}%` : "DEAL",
+        discount: discount > 0 ? `-${Math.round(discount)}%` : "🔥",
         discountNum: discount,
         category: mapCategory(
           row.product_name || "",

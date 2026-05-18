@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import type { Deal } from "@/lib/scraper";
-import { timeAgo, formatPrice, parseDiscountValue, getHiResImage } from "@/lib/scraper";
+import { timeAgo, formatPrice, parseDiscountValue, formatDealBadge, getHiResImage } from "@/lib/scraper";
 import { KNOWN_STORES, formatStoreName } from "@/lib/seo";
 import FeaturedDealBanners from "@/app/components/FeaturedDealBanners";
 
@@ -838,7 +838,7 @@ export default function DealsPage({
                         borderRadius: 100,
                       }}
                     >
-                      {deal.discount}
+                      {formatDealBadge(deal.discount)}
                     </span>
                   </div>
                   <div

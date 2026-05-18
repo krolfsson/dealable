@@ -55,6 +55,13 @@ export function parseDiscountValue(discount: string): number {
   const num = parseInt(discount.replace(/[^0-9]/g, ""));
   return isNaN(num) ? 0 : num;
 }
+
+/** Badge label on deal cards — fire when there is no % discount. */
+export function formatDealBadge(discount: string): string {
+  const d = (discount || "").trim();
+  if (!d || d.toUpperCase() === "DEAL" || parseDiscountValue(d) <= 0) return "🔥";
+  return d;
+}
 /**
  * Upgrade Productserve image URLs to higher resolution
  */
