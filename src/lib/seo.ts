@@ -10,6 +10,8 @@ export const KNOWN_STORES = [
   "NLY Man SE",
   "Outnorth SE",
   "Padel Market",
+  "Rugvista SE",
+  "Samsung SE",
   "Xiaomi SE",
 ];
 
@@ -25,6 +27,8 @@ export const STORE_SLUGS: Record<string, string> = {
   "NLY Man SE": "nly-man",
   "Outnorth SE": "outnorth",
   "Padel Market": "padel-market",
+  "Rugvista SE": "rugvista",
+  "Samsung SE": "samsung",
   "Xiaomi SE": "xiaomi",
 };
 

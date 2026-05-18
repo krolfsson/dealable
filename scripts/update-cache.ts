@@ -5,7 +5,7 @@ import { writeFileSync, mkdirSync, readdirSync, unlinkSync } from "fs";
 import { join } from "path";
 
 const FEED_URL =
-  "https://productdata.awin.com/datafeed/download/apikey/e1f765d6091f3fe2034630528473dd09/language/sv/fid/28201,66049,66051,71335,75951,85876,90563,91087,92875,98123,98177,110674,111829/rid/0/hasEnhancedFeeds/0/columns/aw_deep_link,product_name,aw_product_id,merchant_product_id,merchant_image_url,description,merchant_category,search_price,merchant_name,merchant_id,category_name,category_id,aw_image_url,currency,store_price,delivery_cost,merchant_deep_link,language,last_updated,display_price,data_feed_id,brand_name,brand_id,colour,product_short_description,specifications,condition,product_model,model_number,dimensions,keywords,promotional_text,product_type,commission_group,merchant_product_category_path,merchant_product_second_category,merchant_product_third_category,rrp_price,saving,savings_percent,base_price,base_price_amount,base_price_text,product_price_old,in_stock,stock_quantity,valid_from,valid_to,is_for_sale,web_offer,pre_order,stock_status,size_stock_status,size_stock_amount,merchant_thumb_url,large_image,alternate_image,aw_thumb_url,alternate_image_two,alternate_image_three,alternate_image_four,reviews,average_rating,rating,number_available,Fashion%3Asuitable_for,Fashion%3Acategory,Fashion%3Asize,Fashion%3Amaterial,Fashion%3Apattern,Fashion%3Aswatch/format/csv/delimiter/%2C/compression/gzip/adultcontent/1/";
+  "https://productdata.awin.com/datafeed/download/apikey/e1f765d6091f3fe2034630528473dd09/language/sv/fid/28201,66049,66051,71335,75951,80731,85876,88593,90563,91087,92875,98123,98177,110674/rid/0/hasEnhancedFeeds/0/columns/aw_deep_link,product_name,aw_product_id,merchant_product_id,merchant_image_url,description,merchant_category,search_price,merchant_name,merchant_id,category_name,category_id,aw_image_url,currency,store_price,delivery_cost,merchant_deep_link,language,last_updated,display_price,data_feed_id,rrp_price,saving,savings_percent,base_price,base_price_amount,base_price_text,product_price_old,commission_group,merchant_product_category_path,merchant_product_second_category,merchant_product_third_category,brand_name,brand_id,colour,product_short_description,specifications,condition,product_model,model_number,dimensions,keywords,promotional_text,product_type,in_stock,stock_quantity,valid_from,valid_to,is_for_sale,web_offer,pre_order,stock_status,size_stock_status,size_stock_amount,merchant_thumb_url,large_image,alternate_image,aw_thumb_url,alternate_image_two,alternate_image_three,alternate_image_four,ean,isbn,upc,mpn,parent_product_id,product_GTIN,Fashion%3Asuitable_for,Fashion%3Acategory,Fashion%3Asize,Fashion%3Amaterial,Fashion%3Apattern,Fashion%3Aswatch/format/csv/delimiter/%2C/compression/gzip/adultcontent/1/";
 
 /** Butiker som inte ska visas på Dealable */
 function isExcludedMerchant(merchantName: string): boolean {
@@ -179,6 +179,29 @@ function mapCategory(
     return "Apotek";
   }
 
+  if (store.includes("samsung")) {
+    if (path.includes("telefon") || path.includes("smartphone") || path.includes("galaxy s") || path.includes("galaxy z")) return "Mobiler";
+    if (path.includes("surfplatt") || path.includes("tablet") || path.includes("galaxy tab")) return "Surfplattor";
+    if (path.includes("tv") || path.includes("qled") || path.includes("oled") || path.includes("the frame")) return "TV & video";
+    if (path.includes("hörlur") || path.includes("buds") || path.includes("headset") || path.includes("soundbar") || path.includes("högtalare")) return "Ljud";
+    if (path.includes("klock") || path.includes("watch") || path.includes("wearable")) return "Wearables";
+    if (path.includes("dator") || path.includes("laptop") || path.includes("book") || path.includes("chromebook")) return "Datorer";
+    if (path.includes("skärm") || path.includes("monitor")) return "Skärmar";
+    if (path.includes("kyl") || path.includes("frys") || path.includes("tvätt") || path.includes("tork") || path.includes("disk") || path.includes("ugn") || path.includes("micro") || path.includes("vitvar")) return "Vitvaror";
+    if (path.includes("dammsug") || path.includes("robot")) return "Dammsugare & tillbehör";
+    if (name.includes("galaxy s") || name.includes("galaxy z") || name.includes("smartphone")) return "Mobiler";
+    if (name.includes("galaxy tab") || name.includes("surfplatta")) return "Surfplattor";
+    if (name.includes("galaxy watch") || name.includes("watch")) return "Wearables";
+    if (name.includes("buds") || name.includes("soundbar")) return "Ljud";
+    return "Elektronik";
+  }
+
+  if (store.includes("rugvista")) {
+    if (name.includes("matta") || name.includes("rug") || cat.includes("matta") || path.includes("matta")) return "Mattor";
+    if (name.includes("löpare") || name.includes("runner")) return "Mattor";
+    return "Mattor";
+  }
+
   if (store.includes("xiaomi")) {
     // Xiaomi: categoryPath carries the taxonomy: "Mi > ..."
     if (path.includes("telefon") || path.includes("smartphone")) return "Mobiler";
@@ -325,7 +348,9 @@ async function main() {
         storeLower.includes("ninja") ||
         storeLower.includes("sharkninja") ||
         storeLower.includes("diamond smile") ||
-        storeLower.includes("navimow");
+        storeLower.includes("navimow") ||
+        storeLower.includes("rugvista") ||
+        storeLower.includes("samsung");
 
       if (
         !inStock ||
