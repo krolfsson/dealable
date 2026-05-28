@@ -3,13 +3,13 @@ export default function JsonLd() {
     "@context": "https://schema.org",
     "@type": "WebSite",
     name: "Dealable",
-    url: "https://dealable.se",
+    url: "https://www.dealable.se",
     description:
-      "Hitta de bästa erbjudandena och rabatterna från svenska nätbutiker.",
+      "Hitta rabattkoder, rea och deals från svenska nätbutiker som Samsung, Jotex, Outnorth och fler.",
     inLanguage: "sv-SE",
     potentialAction: {
       "@type": "SearchAction",
-      target: "https://dealable.se/?q={search_term_string}",
+      target: "https://www.dealable.se/?q={search_term_string}",
       "query-input": "required name=search_term_string",
     },
   };

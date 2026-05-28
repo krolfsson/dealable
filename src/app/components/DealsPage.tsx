@@ -8,6 +8,7 @@ import FeaturedDealBanners from "@/app/components/FeaturedDealBanners";
 import DealCard from "@/app/components/deals/DealCard";
 import DealSearch from "@/app/components/deals/DealSearch";
 import DealSkeleton from "@/app/components/deals/DealSkeleton";
+import { computeTrendingDealKeys } from "@/lib/deal-ui";
 import "@/app/components/deals/deals-page.css";
 
 const STORE_CONFIG: Record<string, { emoji: string; color: string }> = {
@@ -224,6 +225,8 @@ export default function DealsPage({
 
     return sorted;
   }, [allDeals, activeStore, activeCategories, debouncedSearch, sortBy]);
+
+  const trendingKeys = useMemo(() => computeTrendingDealKeys(allDeals), [allDeals]);
 
   const visibleDeals = filteredDeals.slice(0, visibleCount);
   const hasMore = visibleCount < filteredDeals.length;
@@ -639,6 +642,7 @@ export default function DealsPage({
                 deal={deal}
                 storeEmoji={storeConfig.emoji}
                 feedUpdatedAt={lastUpdated}
+                trendingKeys={trendingKeys}
                 onOutboundClick={() =>
                   track("outbound_click", {
                     link_url: deal.url,
@@ -723,7 +727,10 @@ export default function DealsPage({
         >
           <span style={{ fontSize: 13, color: "#a78bfa" }}>© 2026 Dealable</span>
           <span style={{ fontSize: 12, color: "#c4b5fd" }}>
-            Innehåller affiliatelänkar från{" "}
+            <a href="/butiker" style={{ color: "#7c3aed", fontWeight: 600, textDecoration: "none" }}>
+              Alla butiker
+            </a>
+            {" · "}Innehåller affiliatelänkar från{" "}
             {stores.length > 0 ? stores.map((s) => formatStoreName(s)).join(", ") : "våra partners"}.
           </span>
           <span style={{ fontSize: 13, color: "#a78bfa" }}>Made in Stockholm 🇸🇪</span>

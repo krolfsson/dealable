@@ -14,6 +14,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "hourly",
       priority: 1,
     },
+    {
+      url: `${base}/butiker`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.85,
+    },
   ];
 
   // Build store + category pages from the current cache.

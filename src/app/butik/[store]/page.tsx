@@ -1,6 +1,13 @@
 import DealsPage from "@/app/components/DealsPage";
-import { SLUG_TO_STORE, formatStoreName } from "@/lib/seo";
+import StoreJsonLd from "@/app/components/StoreJsonLd";
+import StoreSeoSection from "@/app/components/StoreSeoSection";
+import { SLUG_TO_STORE, STORE_SLUGS } from "@/lib/seo";
+import { buildStoreMetadata } from "@/lib/store-seo";
 import type { Metadata } from "next";
+
+export function generateStaticParams() {
+  return Object.values(STORE_SLUGS).map((store) => ({ store }));
+}
 
 export async function generateMetadata({
   params,
@@ -9,21 +16,35 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { store: storeSlug } = await params;
   const storeName = SLUG_TO_STORE[storeSlug];
-  const label = storeName ? formatStoreName(storeName) : storeSlug;
 
-  const title = `${label} rea & deals`;
-  const description = storeName
-    ? `Se de bästa dealsen från ${label}. Filtrera på underkategorier och hitta rätt produkt snabbt. Uppdateras löpande.`
-    : `Se deals från ${label}. Filtrera och hitta rätt produkt snabbt.`;
+  if (!storeName) {
+    return {
+      title: "Butik",
+      robots: { index: false, follow: true },
+    };
+  }
+
+  const { title, description, keywords, canonical } = buildStoreMetadata(
+    storeName,
+    storeSlug
+  );
 
   return {
     title,
     description,
-    alternates: { canonical: `https://www.dealable.se/butik/${storeSlug}` },
+    keywords,
+    alternates: { canonical },
     openGraph: {
       title,
       description,
-      url: `https://www.dealable.se/butik/${storeSlug}`,
+      url: canonical,
+      locale: "sv_SE",
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
     },
   };
 }
@@ -36,21 +57,27 @@ export default async function StorePage({
   const { store: storeSlug } = await params;
   const storeName = SLUG_TO_STORE[storeSlug];
 
-  // Fallback: if unknown slug, render "Alla" (still indexable but less ideal)
-  const initialStore = storeName || "Alla";
+  if (!storeName) {
+    return (
+      <DealsPage
+        initialStore="Alla"
+        seoTitle="Deals från alla butiker"
+        seoDescription="Hitta de bästa erbjudandena från svenska butiker."
+      />
+    );
+  }
 
-  const label = storeName ? formatStoreName(storeName) : storeSlug;
-  const seoTitle = `${label} rea & deals`;
-  const seoDescription = storeName
-    ? `Se de bästa dealsen från ${label}. Filtrera på underkategorier för att hitta rätt produkt snabbt.`
-    : `Se deals från ${label}.`;
+  const { title, description, canonical } = buildStoreMetadata(storeName, storeSlug);
 
   return (
-    <DealsPage
-      initialStore={initialStore}
-      seoTitle={seoTitle}
-      seoDescription={seoDescription}
-    />
+    <>
+      <StoreJsonLd storeName={storeName} storeSlug={storeSlug} canonical={canonical} />
+      <DealsPage
+        initialStore={storeName}
+        seoTitle={title}
+        seoDescription={description}
+      />
+      <StoreSeoSection storeName={storeName} storeSlug={storeSlug} />
+    </>
   );
 }
-

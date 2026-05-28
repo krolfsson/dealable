@@ -117,14 +117,18 @@ export default function DealCard({
   deal,
   storeEmoji,
   feedUpdatedAt,
+  trendingKeys,
   onOutboundClick,
 }: {
   deal: Deal;
   storeEmoji: string;
   feedUpdatedAt: string;
+  trendingKeys: Set<string>;
   onOutboundClick: () => void;
 }) {
-  const signals = getDealTrustSignals(deal, feedUpdatedAt);
+  const signals = getDealTrustSignals(deal, feedUpdatedAt, {
+    trending: trendingKeys.has(`${deal.store}|${deal.id}`),
+  });
   const discountPct = parseDiscountValue(deal.discount);
   const badge = formatDealBadge(deal.discount);
   const isPercent = discountPct > 0;

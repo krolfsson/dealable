@@ -30,13 +30,48 @@ export type DealTrustSignals = {
   trending: boolean;
 };
 
+function dealTrendingKey(deal: Deal): string {
+  return `${deal.store}|${deal.id}`;
+}
+
+/** Max 10 % of products per store get the Trendar badge (highest discount / hot first). */
+export function computeTrendingDealKeys(deals: Deal[]): Set<string> {
+  const byStore = new Map<string, Deal[]>();
+  for (const d of deals) {
+    const list = byStore.get(d.store) ?? [];
+    list.push(d);
+    byStore.set(d.store, list);
+  }
+
+  const trending = new Set<string>();
+  for (const storeDeals of byStore.values()) {
+    const maxCount = Math.floor(storeDeals.length * 0.1);
+    if (maxCount <= 0) continue;
+
+    const ranked = [...storeDeals].sort((a, b) => {
+      const hotDiff = (b.hot ? 1 : 0) - (a.hot ? 1 : 0);
+      if (hotDiff !== 0) return hotDiff;
+      const discountDiff = parseDiscountValue(b.discount) - parseDiscountValue(a.discount);
+      if (discountDiff !== 0) return discountDiff;
+      return hashId(dealTrendingKey(a)) - hashId(dealTrendingKey(b));
+    });
+
+    for (let i = 0; i < maxCount && i < ranked.length; i++) {
+      trending.add(dealTrendingKey(ranked[i]!));
+    }
+  }
+
+  return trending;
+}
+
 export function getDealTrustSignals(
   deal: Deal,
-  feedUpdatedAt: string
+  feedUpdatedAt: string,
+  options?: { trending?: boolean }
 ): DealTrustSignals {
-  const h = hashId(`${deal.store}|${deal.id}`);
+  const h = hashId(dealTrendingKey(deal));
   const discount = parseDiscountValue(deal.discount);
-  const trending = Boolean(deal.hot) || discount >= 35 || h % 11 === 0;
+  const trending = options?.trending ?? false;
 
   let urgency: DealTrustSignals["urgency"] = null;
   if (h % 19 === 0) urgency = "few_left";

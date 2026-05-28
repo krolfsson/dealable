@@ -1,4 +1,25 @@
 import type { NextConfig } from "next";
+import { STORE_SLUGS } from "./src/lib/seo";
+
+function brandSearchRedirects() {
+  const out: { source: string; destination: string; permanent: true }[] = [];
+  for (const slug of Object.values(STORE_SLUGS)) {
+    const dest = `/butik/${slug}`;
+    for (const suffix of ["rabattkod", "rea", "rabatt", "kampanj", "erbjudande", "deals"]) {
+      out.push({
+        source: `/${slug}-${suffix}`,
+        destination: dest,
+        permanent: true,
+      });
+      out.push({
+        source: `/rabattkod/${slug}`,
+        destination: dest,
+        permanent: true,
+      });
+    }
+  }
+  return out;
+}
 
 const nextConfig: NextConfig = {
   async redirects() {
@@ -9,6 +30,7 @@ const nextConfig: NextConfig = {
         destination: "https://www.dealable.se/:path*",
         permanent: true,
       },
+      ...brandSearchRedirects(),
     ];
   },
   images: {
