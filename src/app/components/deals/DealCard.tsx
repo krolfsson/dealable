@@ -177,7 +177,7 @@ export default function DealCard({
           <TrustMeta signals={signals} showUpdated={!signals.verifiedToday} />
 
           <span className="card-cta">Visa deal →</span>
-          <span className="card-arrow">Visa deal →</span>
+          <span className="card-arrow" aria-hidden>→</span>
         </div>
       </article>
     </a>
