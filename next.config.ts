@@ -5,18 +5,12 @@ function brandSearchRedirects() {
   const out: { source: string; destination: string; permanent: true }[] = [];
   for (const slug of Object.values(STORE_SLUGS)) {
     const dest = `/butik/${slug}`;
-    for (const suffix of ["rabattkod", "rea", "rabatt", "kampanj", "erbjudande", "deals"]) {
-      out.push({
-        source: `/${slug}-${suffix}`,
-        destination: dest,
-        permanent: true,
-      });
-      out.push({
-        source: `/rabattkod/${slug}`,
-        destination: dest,
-        permanent: true,
-      });
+    for (const suffix of ["rabattkod", "rea", "rabatt", "kampanj", "erbjudande", "deals", "kampanjkod"]) {
+      out.push({ source: `/${slug}-${suffix}`, destination: dest, permanent: true });
     }
+    out.push({ source: `/rabattkod/${slug}`,   destination: dest, permanent: true });
+    out.push({ source: `/kampanjkod/${slug}`,  destination: dest, permanent: true });
+    out.push({ source: `/rea/${slug}`,          destination: dest, permanent: true });
   }
   return out;
 }

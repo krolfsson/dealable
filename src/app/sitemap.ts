@@ -8,18 +8,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
 
   const out: MetadataRoute.Sitemap = [
-    {
-      url: base,
-      lastModified: now,
-      changeFrequency: "hourly",
-      priority: 1,
-    },
-    {
-      url: `${base}/butiker`,
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.85,
-    },
+    { url: base,                    lastModified: now, changeFrequency: "hourly",  priority: 1    },
+    { url: `${base}/rabattkoder`,   lastModified: now, changeFrequency: "weekly",  priority: 0.9  },
+    { url: `${base}/rea`,           lastModified: now, changeFrequency: "daily",   priority: 0.9  },
+    { url: `${base}/butiker`,       lastModified: now, changeFrequency: "weekly",  priority: 0.85 },
   ];
 
   // Build store + category pages from the current cache.

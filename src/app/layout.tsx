@@ -1,25 +1,40 @@
-import CookieBanner from './components/CookieBanner';
+import CookieBanner from "./components/CookieBanner";
 import type { Metadata } from "next";
 import "./globals.css";
-import JsonLd from './components/JsonLd';
+import JsonLd from "./components/JsonLd";
 import { Analytics } from "@vercel/analytics/react";
+import { KNOWN_STORES, formatStoreName } from "@/lib/seo";
+
+const year = new Date().getFullYear();
+const brandList = KNOWN_STORES.map(formatStoreName).join(", ");
 
 export const metadata: Metadata = {
   title: {
-    default: "Dealable.se – Alla bästa deals från svenska butiker online",
-    template: "%s | Dealable.se",
+    default: `Dealable – Rabattkoder & rea från svenska butiker ${year}`,
+    template: "%s | Dealable",
   },
-  description:
-    "Hitta de bästa erbjudandena och rabatterna från svenska nätbutiker. Uppdateras varannan timme med nya deals från hundratals butiker.",
+  description: `Hitta rabattkoder, kampanjkoder och rea från ${brandList}. Produkter med minst 20 % rabatt – uppdateras löpande.`,
   keywords: [
-    "deals", "erbjudanden", "rabatter", "rea", "kampanjer",
-    "svenska butiker", "online shopping", "prisvärt", "billigt",
+    "rabattkoder",
+    "rabattkod",
+    "kampanjkod",
+    "rea online",
+    "rea",
+    "deals",
+    "erbjudanden",
+    "rabatter",
+    `rabattkoder ${year}`,
+    "svenska butiker rabatt",
+    "nätbutiker rea",
+    ...KNOWN_STORES.flatMap((s) => [
+      `${formatStoreName(s)} rabattkod`,
+      `${formatStoreName(s)} rea`,
+    ]),
   ],
   metadataBase: new URL("https://www.dealable.se"),
   openGraph: {
-    title: "Dealable.se – Alla bästa deals från svenska butiker",
-    description:
-      "Hitta de bästa erbjudandena och rabatterna från svenska nätbutiker. Uppdateras varannan timme.",
+    title: `Dealable – Rabattkoder & rea från svenska butiker`,
+    description: `Rabattkoder och rea från ${brandList}. Uppdateras löpande.`,
     url: "https://www.dealable.se",
     siteName: "Dealable",
     locale: "sv_SE",
@@ -27,13 +42,19 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Dealable.se – Alla bästa deals från svenska butiker",
-    description:
-      "Hitta de bästa erbjudandena och rabatterna från svenska nätbutiker.",
+    title: `Dealable – Rabattkoder & rea från svenska butiker`,
+    description: `Rabattkoder och rea från ${brandList}.`,
   },
   robots: {
     index: true,
     follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-snippet": -1,
+      "max-image-preview": "large",
+      "max-video-preview": -1,
+    },
   },
   alternates: {
     canonical: "https://www.dealable.se",
