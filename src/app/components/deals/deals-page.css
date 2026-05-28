@@ -430,6 +430,48 @@
   opacity: 0.88;
 }
 
+/* Desktop: hide full CTA button, show a small arrow in the corner instead */
+@media (min-width: 900px) {
+  .deals-page .card-cta {
+    display: none;
+  }
+
+  .deals-page .card-info {
+    position: relative;
+  }
+
+  .deals-page .card-arrow {
+    position: absolute;
+    bottom: 14px;
+    right: 14px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #f3e8ff;
+    color: var(--purple);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+    transition: background var(--duration-fast), transform var(--duration-fast);
+    flex-shrink: 0;
+  }
+
+  .deals-page .deal-link:hover .card-arrow {
+    background: linear-gradient(135deg, #a855f7, #ec4899);
+    color: #fff;
+    transform: translateX(2px);
+  }
+}
+
+/* Mobile: hide the small arrow, show the CTA button */
+@media (max-width: 899px) {
+  .deals-page .card-arrow {
+    display: none;
+  }
+}
+
 .deals-page .card-meta {
   display: flex;
   flex-wrap: wrap;
