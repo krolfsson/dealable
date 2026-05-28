@@ -438,6 +438,21 @@
 
   .deals-page .card-info {
     position: relative;
+    padding: 12px 14px;
+    gap: 1px;
+  }
+
+  .deals-page .card-title {
+    margin-top: 2px;
+    min-height: 0;
+  }
+
+  .deals-page .card-price-row {
+    margin-top: 5px;
+  }
+
+  .deals-page .card-meta {
+    margin-top: 5px;
   }
 
   .deals-page .card-arrow {
