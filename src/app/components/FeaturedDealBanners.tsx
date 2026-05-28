@@ -6,6 +6,9 @@ export type FeaturedBanner = {
   title: string;
   subtitle: string;
   href?: string;
+  /** Full-width promo image (replaces gradient + emoji layout) */
+  image?: string;
+  imageAlt?: string;
   /** Gradient start → end (theme-aligned) */
   gradientFrom: string;
   gradientTo: string;
@@ -32,21 +35,41 @@ export const FEATURED_BANNERS: FeaturedBanner[] = [
   },
   {
     id: "featured-3",
-    emoji: "🎁",
-    title: "Bli Outnorth Member",
-    subtitle: "Få 25% på ett köp!",
-    href: "https://www.awin1.com/cread.php?awinmid=18619&awinaffid=2845402&campaign=&ued=https%3A%2F%2Fwww.outnorth.com%2Fse%2Fkampanjer%2F25-pa-ett-kop",
-    gradientFrom: "#0ea5e9",
-    gradientTo: "#0284c7",
+    emoji: "📱",
+    title: "20% på Samsung Galaxy",
+    subtitle: "Kod ENTERTHEGALAXY · gäller t.o.m. söndag",
+    href: "https://www.awin1.com/cread.php?awinmid=21710&awinaffid=2845402&campaign=&ued=https%3A%2F%2Fwww.samsung.com%2Fse%2F",
+    image: "/images/banners/samsung-galaxy-20.png",
+    imageAlt:
+      "20% på Samsung Galaxy. Använd koden ENTERTHEGALAXY. Gäller endast t.o.m. söndag.",
+    gradientFrom: "#1d4ed8",
+    gradientTo: "#1e3a8a",
   },
 ];
 
 function BannerCard({ banner }: { banner: FeaturedBanner }) {
-  const style = {
-    background: `linear-gradient(135deg, ${banner.gradientFrom}, ${banner.gradientTo})`,
-  } as const;
+  const style = banner.image
+    ? undefined
+    : ({
+        background: `linear-gradient(135deg, ${banner.gradientFrom}, ${banner.gradientTo})`,
+      } as const);
 
-  const content = (
+  const content = banner.image ? (
+    <>
+      <img
+        className="featured-banner-image"
+        src={banner.image}
+        alt={banner.imageAlt || `${banner.title}. ${banner.subtitle}`}
+        width={1200}
+        height={400}
+        loading="lazy"
+        decoding="async"
+      />
+      <span className="featured-banner-chevron featured-banner-chevron--image" aria-hidden>
+        →
+      </span>
+    </>
+  ) : (
     <>
       <span className="featured-banner-emoji" aria-hidden>
         {banner.emoji}
@@ -62,7 +85,13 @@ function BannerCard({ banner }: { banner: FeaturedBanner }) {
     </>
   );
 
-  const className = `featured-banner${banner.href ? "" : " featured-banner--placeholder"}`;
+  const className = [
+    "featured-banner",
+    banner.image ? "featured-banner--image" : "",
+    banner.href ? "" : "featured-banner--placeholder",
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   if (banner.href) {
     return (
