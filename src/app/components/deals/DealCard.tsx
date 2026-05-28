@@ -9,6 +9,13 @@ import {
   getHiResImage,
   parseDiscountValue,
 } from "@/lib/scraper";
+
+function formatSaving(price: number, originalPrice: number): string | null {
+  if (!originalPrice || !price || originalPrice <= price) return null;
+  const saving = Math.round(originalPrice - price);
+  if (saving < 10) return null;
+  return `Spara ${saving.toLocaleString("sv-SE")} kr`;
+}
 import { getDealTrustSignals, type DealTrustSignals } from "@/lib/deal-ui";
 import { formatStoreName } from "@/lib/seo";
 
@@ -132,6 +139,7 @@ export default function DealCard({
   const discountPct = parseDiscountValue(deal.discount);
   const badge = formatDealBadge(deal.discount);
   const isPercent = discountPct > 0;
+  const saving = formatSaving(deal.price, deal.originalPrice);
 
   return (
     <a
@@ -166,10 +174,15 @@ export default function DealCard({
               {deal.originalPrice > 0 && deal.originalPrice !== deal.price && (
                 <span className="card-original">{formatPrice(deal.originalPrice)}</span>
               )}
+              {saving && (
+                <span className="card-saving">{saving}</span>
+              )}
             </div>
           )}
 
           <TrustMeta signals={signals} showUpdated={!signals.verifiedToday} />
+
+          <span className="card-cta">Se deal →</span>
         </div>
       </article>
     </a>
