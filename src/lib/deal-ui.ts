@@ -26,7 +26,6 @@ function hashId(seed: string): number {
 export type DealTrustSignals = {
   verifiedToday: boolean;
   updatedLabel: string;
-  urgency: "few_left" | "ending_soon" | null;
   trending: boolean;
 };
 
@@ -69,13 +68,7 @@ export function getDealTrustSignals(
   feedUpdatedAt: string,
   options?: { trending?: boolean }
 ): DealTrustSignals {
-  const h = hashId(dealTrendingKey(deal));
-  const discount = parseDiscountValue(deal.discount);
   const trending = options?.trending ?? false;
-
-  let urgency: DealTrustSignals["urgency"] = null;
-  if (h % 19 === 0) urgency = "few_left";
-  else if (discount >= 25 && h % 13 === 0) urgency = "ending_soon";
 
   let verifiedToday = false;
   let updatedLabel = "";
@@ -95,7 +88,6 @@ export function getDealTrustSignals(
   return {
     verifiedToday,
     updatedLabel,
-    urgency,
     trending,
   };
 }

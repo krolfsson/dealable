@@ -110,12 +110,6 @@ function TrustMeta({
       {showUpdated && signals.updatedLabel && (
         <span className="card-pill">{signals.updatedLabel}</span>
       )}
-      {signals.urgency === "few_left" && (
-        <span className="card-pill card-pill--urgent">Få kvar</span>
-      )}
-      {signals.urgency === "ending_soon" && (
-        <span className="card-pill card-pill--urgent">Slutar snart</span>
-      )}
     </div>
   );
 }
