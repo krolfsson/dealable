@@ -34,7 +34,7 @@ export const FEATURED_BANNERS: FeaturedBanner[] = [
     id: "featured-3",
     emoji: "📱",
     title: "20% på Samsung Galaxy",
-    subtitle: "Kod ENTERTHEGALAXY · gäller t.o.m. söndag",
+    subtitle: "Kod ENTERTHEGALAXY · gäller t.o.m. söndag!",
     href: "https://www.awin1.com/cread.php?awinmid=21710&awinaffid=2845402&campaign=&ued=https%3A%2F%2Fwww.samsung.com%2Fse%2F",
     gradientFrom: "#1428a0",
     gradientTo: "#0a1628",
