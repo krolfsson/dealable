@@ -2,11 +2,27 @@ import type { Deal } from "@/lib/scraper";
 import { parseDiscountValue } from "@/lib/scraper";
 
 export const SEARCH_PLACEHOLDERS = [
-  "Sök Nike skor…",
-  "Hitta Dyson rea…",
-  "Sök soffa Homeroom…",
-  "Upptäck Outnorth jackor…",
+  "Sök produkter, märken eller butiker...",
+  "Hitta Dyson rea...",
+  "Sök soffa, inredning, kläder...",
+  "Upptäck deals med 50% rabatt...",
 ];
+
+export const STORE_SEARCH_HINTS: Record<string, string[]> = {
+  "Apotek Hjärtat SE": ["Sök hudvård, hårvård, parfym...", "Sök Apotek Hjärtat produkter..."],
+  "Diamond Smile SE": ["Sök tandblekning, munvård...", "Sök Diamond Smile..."],
+  "Dyson SE": ["Sök Dyson, dammsugare, Airwrap...", "Sök Dyson styler, fläkt, luftrenare..."],
+  "Homeroom SE": ["Sök soffa, bord, förvaring...", "Sök Homeroom möbler, inredning..."],
+  "Jotex SE": ["Sök gardiner, mattor, kuddar...", "Sök Jotex utemöbler, textilier..."],
+  "Nelly SE": ["Sök klänning, skor, väska...", "Sök Nelly mode, plagg..."],
+  "NLY Man SE": ["Sök jacka, byxor, skor herr...", "Sök NLY Man mode..."],
+  "Outnorth SE": ["Sök jacka, skor, tält...", "Sök Outnorth friluft, camping..."],
+  "Padel Market": ["Sök racket, bollar, väska...", "Sök padelutrustning..."],
+  "SharkNinja SE": ["Sök dammsugare, air fryer, grill...", "Sök Shark, Ninja produkter..."],
+  "Rugvista SE": ["Sök matta, storlek, stil...", "Sök Rugvista mattor..."],
+  "Samsung SE": ["Sök Galaxy, telefon, surfplatta...", "Sök Samsung TV, vitvaror..."],
+  "Xiaomi SE": ["Sök Xiaomi mobil, smartwatch...", "Sök Xiaomi smarta hem..."],
+};
 
 export const TRENDING_SEARCHES = [
   "Jotex",

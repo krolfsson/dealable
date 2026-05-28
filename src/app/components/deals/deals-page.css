@@ -430,7 +430,7 @@
   opacity: 0.88;
 }
 
-/* Desktop: hide full CTA button, show a small arrow in the corner instead */
+/* Desktop: hide full CTA button, show a pill "Visa deal" button instead */
 @media (min-width: 900px) {
   .deals-page .card-cta {
     display: none;
@@ -457,30 +457,28 @@
 
   .deals-page .card-arrow {
     position: absolute;
-    bottom: 14px;
-    right: 14px;
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
+    bottom: 12px;
+    right: 12px;
+    padding: 5px 12px;
+    border-radius: var(--radius-pill);
     background: #f3e8ff;
     color: var(--purple);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
+    font-size: 11px;
     font-weight: 700;
-    transition: background var(--duration-fast), transform var(--duration-fast);
-    flex-shrink: 0;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+    transition: background var(--duration-fast), color var(--duration-fast),
+      box-shadow var(--duration-fast);
   }
 
   .deals-page .deal-link:hover .card-arrow {
     background: linear-gradient(135deg, #a855f7, #ec4899);
     color: #fff;
-    transform: translateX(2px);
+    box-shadow: 0 2px 10px rgba(168, 85, 247, 0.35);
   }
 }
 
-/* Mobile: hide the small arrow, show the CTA button */
+/* Mobile: hide the desktop arrow pill, show full CTA button */
 @media (max-width: 899px) {
   .deals-page .card-arrow {
     display: none;

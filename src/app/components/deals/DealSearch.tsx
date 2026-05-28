@@ -5,24 +5,25 @@ import {
   loadRecentSearches,
   saveRecentSearch,
   SEARCH_PLACEHOLDERS,
+  STORE_SEARCH_HINTS,
   TRENDING_SEARCHES,
 } from "@/lib/deal-ui";
 
 export default function DealSearch({
   value,
   onChange,
+  activeStore,
 }: {
   value: string;
   onChange: (v: string) => void;
+  activeStore?: string;
 }) {
   const [focused, setFocused] = useState(false);
   const [placeholderIdx, setPlaceholderIdx] = useState(0);
-  const [recent, setRecent] = useState<string[]>([]);
+  const storePlaceholders =
+    activeStore && activeStore !== "Alla" ? STORE_SEARCH_HINTS[activeStore] ?? null : null;
+  const [recent, setRecent] = useState<string[]>(() => loadRecentSearches());
   const wrapRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    setRecent(loadRecentSearches());
-  }, []);
 
   useEffect(() => {
     const t = setInterval(() => {
@@ -63,7 +64,11 @@ export default function DealSearch({
         onKeyDown={(e) => {
           if (e.key === "Enter" && value.trim()) saveRecentSearch(value);
         }}
-        placeholder={SEARCH_PLACEHOLDERS[placeholderIdx]}
+        placeholder={
+          storePlaceholders
+            ? storePlaceholders[placeholderIdx % storePlaceholders.length]
+            : SEARCH_PLACEHOLDERS[placeholderIdx]
+        }
         className="search-input mobile-search"
         aria-label="Sök deals"
         autoComplete="off"

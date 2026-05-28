@@ -28,7 +28,7 @@ const STORE_CONFIG: Record<string, { emoji: string; color: string }> = {
   "Xiaomi SE": { emoji: "📱", color: "#ef4444" },
 };
 
-type SortOption = "discount" | "cheapest" | "expensive";
+type SortOption = "discount" | "cheapest" | "best_deal";
 
 const PAGE_SIZE = 60;
 
@@ -219,8 +219,15 @@ export default function DealsPage({
       );
     } else if (sortBy === "cheapest") {
       sorted.sort((a, b) => a.price - b.price);
-    } else if (sortBy === "expensive") {
-      sorted.sort((a, b) => b.price - a.price);
+    } else if (sortBy === "best_deal") {
+      sorted.sort((a, b) => {
+        const savingA = Math.max(0, (a.originalPrice ?? 0) - a.price);
+        const savingB = Math.max(0, (b.originalPrice ?? 0) - b.price);
+        const scoreA = parseDiscountValue(a.discount) * savingA;
+        const scoreB = parseDiscountValue(b.discount) * savingB;
+        if (scoreB !== scoreA) return scoreB - scoreA;
+        return parseDiscountValue(b.discount) - parseDiscountValue(a.discount);
+      });
     }
 
     return sorted;
@@ -330,14 +337,21 @@ export default function DealsPage({
   const sortLabels: Record<SortOption, string> = {
     discount: "Rabatt 💸",
     cheapest: "Billigast 💰",
-    expensive: "Dyrast 💎",
+    best_deal: "Bäst deal ✨",
   };
+
+  const [showAllStores, setShowAllStores] = useState(false);
+  const MAX_VISIBLE_STORES = 8;
 
   const pullProgress = Math.min(pullDistance / PULL_THRESHOLD, 1);
   const storeButtons = [
     "Alla",
     ...stores.slice().sort((a, b) => a.localeCompare(b, "sv")),
   ];
+  const visibleStoreButtons = showAllStores
+    ? storeButtons
+    : storeButtons.slice(0, MAX_VISIBLE_STORES);
+  const hiddenStoreCount = storeButtons.length - MAX_VISIBLE_STORES;
 
   const activeStoreLabel =
     activeStore === "Alla" ? "Alla butiker" : formatStoreName(activeStore);
@@ -472,7 +486,7 @@ export default function DealsPage({
             >
               dealable
             </span>
-            <DealSearch value={searchQuery} onChange={setSearchQuery} />
+            <DealSearch value={searchQuery} onChange={setSearchQuery} activeStore={activeStore} />
             <div style={{ width: 80 }} />
           </div>
         </nav>
@@ -492,7 +506,7 @@ export default function DealsPage({
               alignItems: "center",
             }}
           >
-            {storeButtons.map((store) => {
+            {visibleStoreButtons.map((store) => {
               const config = STORE_CONFIG[store] || {
                 emoji: "🏪",
                 color: "#a855f7",
@@ -517,6 +531,16 @@ export default function DealsPage({
                 </button>
               );
             })}
+            {!showAllStores && hiddenStoreCount > 0 && (
+              <button
+                type="button"
+                className="store-btn"
+                onClick={() => setShowAllStores(true)}
+                style={{ opacity: 0.75 }}
+              >
+                +{hiddenStoreCount} fler
+              </button>
+            )}
           </div>
         </div>
 
@@ -591,7 +615,7 @@ export default function DealsPage({
 
       <section style={{ maxWidth: 1100, margin: "0 auto", padding: "8px 20px 8px" }}>
         <div style={{ display: "flex", gap: 4, alignItems: "center", justifyContent: "center" }}>
-          {(["discount", "cheapest", "expensive"] as SortOption[]).map((option) => (
+          {(["discount", "cheapest", "best_deal"] as SortOption[]).map((option) => (
             <button
               key={option}
               className={`sort-option ${sortBy === option ? "active" : ""}`}
@@ -614,7 +638,7 @@ export default function DealsPage({
           <span style={{ fontWeight: 600, color: "#7e22ce" }}>
             {filteredDeals.length}
           </span>{" "}
-          affiliatedeals hittades
+          deals hittades
           {lastUpdated && (
             <>
               {" · "}
@@ -622,9 +646,21 @@ export default function DealsPage({
             </>
           )}
         </p>
+
+        <p
+          style={{
+            fontSize: 11,
+            color: "#c4b5fd",
+            margin: "6px 0 0",
+            textAlign: "center",
+            letterSpacing: "0.01em",
+          }}
+        >
+          Priser och rabatter kontrolleras löpande · Kan innehålla affiliatelänkar
+        </p>
       </section>
 
-      <FeaturedDealBanners />
+      {activeStore === "Alla" && <FeaturedDealBanners />}
 
       <section style={{ maxWidth: 1100, margin: "0 auto", padding: "12px 20px 80px" }}>
         {loading ? (

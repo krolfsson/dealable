@@ -105,7 +105,7 @@ function TrustMeta({
   return (
     <div className="card-meta">
       {signals.verifiedToday && (
-        <span className="card-pill card-pill--trust">✓ Verifierad idag</span>
+        <span className="card-pill card-pill--trust">✓ Deal verifierad idag</span>
       )}
       {showUpdated && signals.updatedLabel && (
         <span className="card-pill">{signals.updatedLabel}</span>
@@ -176,8 +176,8 @@ export default function DealCard({
 
           <TrustMeta signals={signals} showUpdated={!signals.verifiedToday} />
 
-          <span className="card-cta">Se deal →</span>
-          <span className="card-arrow" aria-hidden>→</span>
+          <span className="card-cta">Visa deal →</span>
+          <span className="card-arrow">Visa deal →</span>
         </div>
       </article>
     </a>
