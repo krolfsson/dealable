@@ -59,6 +59,9 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "https://www.dealable.se",
   },
+  other: {
+    "impact-site-verification": "2762a8f0-699a-4677-b8a4-91d84764f899",
+  },
 };
 
 export default function RootLayout({
